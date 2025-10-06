@@ -11,7 +11,7 @@ namespace GardenGroup.Repositories
 
         public UserRepository(IMongoDatabase db)
         {
-            _users = db.GetCollection<User>("users");
+            _users = db.GetCollection<User>("Users");
         }
 
         public List<User> GetAll() =>

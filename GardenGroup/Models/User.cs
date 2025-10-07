@@ -16,9 +16,29 @@ namespace GardenGroup.Models
         // A simple string field for the user's name.
         // Default = "" so it's never null when creating a new User.
         public string Name { get; set; } = "";
+        public string LastName { get; set; } = "";
+        
+        public string Role { get; set; } = "";
 
         // A simple string field for the user's email.
         // Later we could add validation (e.g. DataAnnotations).
         public string Email { get; set; } = "";
+        public string PhoneNumber { get; set; } = "";
+        public string City { get; set; } = "";
+        public string Password { get; set; } = "";
+        public string Salt { get; set; } = "";
+
+        public User(string? id, string name, string lastName, string role, string email, string phoneNumber, string city, string password, string salt)
+        {
+            Id = id;
+            Name = name;
+            LastName = lastName;
+            Role = role;
+            Email = email;
+            PhoneNumber = phoneNumber;
+            City = city;
+            Password = password;
+            Salt = salt;
+        }
     }
 }

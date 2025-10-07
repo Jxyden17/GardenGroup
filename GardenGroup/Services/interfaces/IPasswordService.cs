@@ -1,0 +1,9 @@
+﻿namespace GardenGroup.Services.interfaces
+{
+    public interface IPasswordService
+    {
+        string GenerateSalt();
+        string InterleaveSalt(string password, string salt);
+        string HashPassword(string input);
+    }
+}

@@ -1,0 +1,24 @@
+﻿@model List<Ticket>;
+
+<h1>Tickets</h1>
+
+<form method="post" asp-action="Create">
+    <input name="title" placeholder="Title" required />
+    <input name="description" placeholder="Description" required />
+    <button type="submit">Add</button>
+    </form>
+<table>
+    <thead>
+        <tr><th>Title</th><th>Description</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+        @foreach (Ticket tikets in Model)
+        {
+            <tr>
+                <td>@tikets.Title</td>
+                <td>@tikets.Description</td>
+                <td>@tikets.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>

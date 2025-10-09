@@ -12,17 +12,49 @@ namespace GardenGroup.Controllers
 
         public IActionResult Index()
         {
-            var users = _repo.GetAll();
-            return View(users);
+            try
+            {
+                List<User> users = _repo.GetAll();
+                return View(users);
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                ViewBag.ErrorMessage = "Fout bij data van users ophalen probeer later.";
+                return View(new List<User>());
+            }
         }
 
-        [HttpPost]
-        public IActionResult Create(string name, string email)
+        public IActionResult Details(string id)
         {
-            var user = new User { Name = name, Email = email };
-            _repo.Add(user);
-            return RedirectToAction("Index");
+            User user = _repo.GetById(id);
+            return View(user);
         }
+
+        [HttpGet]
+        public IActionResult Delete(string id)
+        {
+            User user = _repo.GetById(id);
+            return View(user);
+        }
+
+        [HttpPost,]
+        public IActionResult DeleteConfirmed(string id)
+        {
+            _repo.Delete(id);
+            return RedirectToAction("Index");
+
+        }
+
+        //[HttpPost]
+        //public IActionResult Create(string name, string email)
+        //{
+        //    var user = new User { Name = name, Email = email };
+        //    _repo.Add(user);
+        //    return RedirectToAction("Index");
+        //}
     }
 
 }

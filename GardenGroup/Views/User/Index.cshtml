@@ -46,7 +46,7 @@
                 <td>@users.PhoneNumber</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@users.Id">Details</a> |
-                    <a asp-action="Edit" asp-route-id="@users.Id">Edit</a> |
+                    <a href="/User/Update/@users.Id">Edit</a> |
                     <a asp-action="Delete" asp-route-id="@users.Id">Delete</a>
                 </td>
             </tr>

@@ -1,6 +1,8 @@
 using GardenGroup.Repositories.Interfaces;
 using GardenGroup.Repositories;
 using MongoDB.Driver;
+using GardenGroup.Services.interfaces;
+using GardenGroup.Services;
 
 namespace GardenGroup
 {
@@ -45,9 +47,13 @@ namespace GardenGroup
             });
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSingleton<IPasswordService, PasswordService>();
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+
 
             var app = builder.Build();
 

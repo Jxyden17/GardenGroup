@@ -6,10 +6,10 @@ namespace GardenGroup.Repositories.Interfaces
     {
         List<User> GetAll();
         void Add(User user);
-        User GetById(string id);
+        User GetUserById(string id);
         void Delete(string id);
         // Future:
-        // void Update(User user);
+        void UpdateUser(User user);
     }
 }
 

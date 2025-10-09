@@ -47,6 +47,7 @@ namespace GardenGroup
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
             var app = builder.Build();
 

@@ -24,7 +24,7 @@ namespace GardenGroup.Services
             string salt= _passwordService.GenerateSalt();
             string password=_passwordService.InterleaveSalt(user1.Password, salt);
             string hashedPassword=_passwordService.HashPassword(password);
-            User user2= new User(user1.Id, user1.Name, user1.LastName, user1.Role, user1.Email, user1.PhoneNumber,user1.City, hashedPassword,salt);
+            User user2= new User(user1.Id, user1.UserId, user1.Name, user1.LastName, user1.Role, user1.Email, user1.PhoneNumber,user1.City, hashedPassword,salt);
             _userRepository.Add(user2);
         }
     }

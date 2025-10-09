@@ -28,7 +28,7 @@ namespace GardenGroup.Repositories
 
         public void Delete(string id)
         {
-            _users.DeleteOne(u => u.Id == id);
+            _users.DeleteOne(user => user.Id == id);
         }
 
         public void Add(User user) =>

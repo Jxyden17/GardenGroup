@@ -12,25 +12,36 @@ namespace GardenGroup.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
+        [BsonElement("userId")]
+        public int UserId { get; set; }
 
         // A simple string field for the user's name.
         // Default = "" so it's never null when creating a new User.
-        public string Name { get; set; } = "";
-        public string LastName { get; set; } = "";
-        
-        public string Role { get; set; } = "";
+        [BsonElement("naam")]
+        public string? Name { get; set; } = "";
+        [BsonElement("achternaam")]
+        public string? LastName { get; set; } = "";
+        [BsonElement("rol")]
+        public string? Role { get; set; } = "";
 
         // A simple string field for the user's email.
         // Later we could add validation (e.g. DataAnnotations).
-        public string Email { get; set; } = "";
-        public string PhoneNumber { get; set; } = "";
-        public string City { get; set; } = "";
-        public string Password { get; set; } = "";
-        public string Salt { get; set; } = "";
+        [BsonElement("email")]
+        public string? Email { get; set; } = "";
+        [BsonElement("telefoonnummer")]
+        public string? PhoneNumber { get; set; } = "";
+        [BsonElement("stad")]
+        public string? City { get; set; } = "";
+        [BsonElement("password")]
+        public string? Password { get; set; } = "";
 
-        public User(string? id, string name, string lastName, string role, string email, string phoneNumber, string city, string password, string salt)
+        [BsonElement("salt")]
+        public string? Salt { get; set; } = "";
+
+        public User(string? id,int userId, string name, string lastName, string role, string email, string phoneNumber, string city, string password, string salt)
         {
             Id = id;
+            UserId = userId;
             Name = name;
             LastName = lastName;
             Role = role;

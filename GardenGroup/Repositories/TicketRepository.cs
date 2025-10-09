@@ -15,5 +15,22 @@ namespace GardenGroup.Repositories
         {
            _tickets.InsertOne(ticket);
         }
+
+        public List<Ticket> GetAll()
+        {
+            List<Ticket> tickets = _tickets.Find(FilterDefinition<Ticket>.Empty).ToList();
+            return tickets;
+        }
+
+        public Ticket GetById(string id)
+        {
+            Ticket ticket = _tickets.Find(ticket => ticket.Id == id).FirstOrDefault();
+            return ticket;
+        }
+
+        public void Delete(string id)
+        {
+            _tickets.DeleteOne(ticket => ticket.Id == id);
+        }
     }
 }

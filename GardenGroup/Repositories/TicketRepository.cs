@@ -15,5 +15,11 @@ namespace GardenGroup.Repositories
         {
            _tickets.InsertOne(ticket);
         }
+
+        public List<Ticket> GetAll()
+        {
+            List<Ticket> tickets = _tickets.Find(FilterDefinition<Ticket>.Empty).ToList();
+            return tickets;
+        }
     }
 }

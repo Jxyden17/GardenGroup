@@ -14,22 +14,35 @@ namespace GardenGroup.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }   // Uniek ticketnummer (1..100)
-        DateTime Datum_open { get; set; }   // Startdatum
-        DateTime Datum_close { get; set; }  // Sluitdatum
-        string Status { get; set; }          // "Open" | "In Progress" | "Waiting" | "Closed"
-        string Title { get; set; }           // Titel van het ticket
-        string Type { get; set; }            // "Bug" | "Feature" | "Incident" | "Task"
-        string Prioriteit { get; set; }      // "Laag" | "Normaal" | "Hoog" | "Kritiek"
-        string Description { get; set; }     // Beschrijving
-        int Creator { get; set; }         // Verwijzing naar userId (maker)
-        int Solver { get; set; }          // Verwijzing naar userId (oplosser)
-        DateTime Deadline { get; set; }          // Deadline
-        List<TicketLog> TicketLogs = new List<TicketLog>();            // Array van log entries
+        [BsonElement("ticketId")]
+        public int TicketId { get; set; }
+        [BsonElement("datum_open")]
+        public DateTime Datum_open { get; set; }   // Startdatum
+        [BsonElement("datum_close")]
+        public DateTime? Datum_close { get; set; }  // Sluitdatum
+        [BsonElement("status")]
+        public string Status { get; set; }          // "Open" | "In Progress" | "Waiting" | "Closed"
+        [BsonElement("title")]
+        public string Title { get; set; }           // Titel van het ticket
+        [BsonElement("type")]
+        public string Type { get; set; }            // "Bug" | "Feature" | "Incident" | "Task"
+        [BsonElement("prioriteit")]
+        public string Prioriteit { get; set; }      // "Laag" | "Normaal" | "Hoog" | "Kritiek"
+        [BsonElement("description")]
+        public string Description { get; set; }     // Beschrijving
+        [BsonElement("creator")]
+        public int Creator { get; set; }         // Verwijzing naar userId (maker)
+        [BsonElement("solver")]
+        public int Solver { get; set; }          // Verwijzing naar userId (oplosser)
+        [BsonElement("deadline")]
+        public DateTime Deadline { get; set; }          // Deadline
+        public List<TicketLog> TicketLogs = new List<TicketLog>();            // Array van log entries
         public int StepsBeforeClosed { get { return TicketLogs.Count; } set; } // Aantal stappen tot ticket werd gesloten
 
-        public Ticket(string? id, string status, string title, string type, string prioriteit, string description, int creator, int solver, DateTime deadline)
+        public Ticket(string? id, int ticketId, string status, string title, string type, string prioriteit, string description, int creator, int solver, DateTime deadline)
         {
             Id = id;
+            TicketId = ticketId;
             Datum_open = DateTime.Now;
             Status = status;
             Title = title;

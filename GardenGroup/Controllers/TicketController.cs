@@ -24,7 +24,6 @@ namespace GardenGroup.Controllers
                 ViewBag.ErrorMessage = "Fout bij data van tickets ophalen probeer later.";
                 return View(new List<Ticket>());
             }
-
         }
 
         // GET: TicketController/Details/5

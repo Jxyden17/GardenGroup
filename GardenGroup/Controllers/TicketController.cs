@@ -27,9 +27,10 @@ namespace GardenGroup.Controllers
         }
 
         // GET: TicketController/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(string id)
         {
-            return View();
+            Ticket ticket = _repo.GetById(id);
+            return View(ticket);
         }
 
         // GET: TicketController/Create
@@ -75,19 +76,21 @@ namespace GardenGroup.Controllers
         }
 
         // GET: TicketController/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(string id)
         {
-            return View();
+            Ticket ticket = _repo.GetById(id);
+            return View(ticket);
         }
 
         // POST: TicketController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult DeleteConfirmed(string id, IFormCollection collection)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _repo.Delete(id);
+                return RedirectToAction("Index");
             }
             catch
             {

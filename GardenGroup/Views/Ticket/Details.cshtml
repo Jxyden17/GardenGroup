@@ -1,5 +1,46 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model GardenGroup.Models.Ticket
 @{
+    ViewData["Title"] = "Ticket Details";
 }
+
+<h1>Ticket Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Title
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Title
+        </dd>
+        <dt class="col-sm-2">
+            Status
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Status
+        </dd>
+        <dt class="col-sm-2">
+            Prioriteit
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Prioriteit
+        </dd>
+        <dt class="col-sm-2">
+            Creator
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Creator
+        </dd>
+        <dt class="col-sm-2">
+            Datum open
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Datum_open
+        </dd>
+    </dl>
+    <p>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a> |
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </p>
+</div>

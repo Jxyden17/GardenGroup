@@ -1,5 +1,6 @@
 ﻿using GardenGroup.Models;
 using GardenGroup.Repositories.Interfaces;
+using GardenGroup.Services.interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,8 +9,13 @@ namespace GardenGroup.Controllers
     public class TicketController : Controller
     {
         private readonly ITicketRepository _repo;
+        private readonly ITicketService _ticketService;
 
-        public TicketController(ITicketRepository repo) => _repo = repo;
+        public TicketController(ITicketRepository repo, ITicketService ticketService)
+        {
+            _repo = repo;
+            _ticketService = ticketService;
+        }
         // GET: TicketController
         public ActionResult Index()
         {
@@ -29,7 +35,7 @@ namespace GardenGroup.Controllers
         // GET: TicketController/Details/5
         public ActionResult Details(string id)
         {
-            Ticket ticket = _repo.GetById(id);
+            Ticket ticket = _ticketService.GetTicketById(id);
             return View(ticket);
         }
 
@@ -54,31 +60,40 @@ namespace GardenGroup.Controllers
             }
         }
 
-        // GET: TicketController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: TicketController/Edit/5
+    
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Update(Ticket ticket)
         {
             try
             {
-                return RedirectToAction(nameof(Index));
+                _ticketService.UpdateTicket(ticket);
+                TempData["ConfirmMessage"] = "Your ticket has been edited successfully";
+                return RedirectToAction("Index");
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                ViewBag.ErrorMessage = $"An error occurred: {ex.Message}";
+                return View(ticket);
             }
         }
+
+        [HttpGet]
+        public ActionResult Update(string? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            Ticket ticket = _ticketService.GetTicketById(id);
+            return View(ticket);
+        }
+
 
         // GET: TicketController/Delete/5
         public ActionResult Delete(string id)
         {
-            Ticket ticket = _repo.GetById(id);
+            Ticket ticket = _ticketService.GetTicketById(id);
             return View(ticket);
         }
 

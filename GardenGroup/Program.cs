@@ -53,6 +53,7 @@ namespace GardenGroup
             builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+            builder.Services.AddScoped<ITicketService, TicketService>();
 
 
             var app = builder.Build();

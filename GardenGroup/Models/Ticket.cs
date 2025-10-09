@@ -19,7 +19,7 @@ namespace GardenGroup.Models
         [BsonElement("ticketId")]
         public int TicketId { get; set; }
         [BsonElement("datum_open")]
-        public DateTime Datum_open { get; set; }   // Startdatum
+        public DateTime? Datum_open { get; set; }  // Startdatum
         [BsonElement("datum_close")]
         public DateTime? Datum_close { get; set; }  // Sluitdatum
         [BsonElement("status")]
@@ -37,7 +37,7 @@ namespace GardenGroup.Models
         [BsonElement("solver")]
         public int Solver { get; set; }          // Verwijzing naar userId (oplosser)
         [BsonElement("deadline")]
-        public DateTime Deadline { get; set; }          // Deadline
+        public DateTime? Deadline { get; set; }          // Deadline
         public List<TicketLog> TicketLogs = new List<TicketLog>();            // Array van log entries
         public int StepsBeforeClosed { get { return TicketLogs.Count; } } // Aantal stappen tot ticket werd gesloten
 
@@ -57,6 +57,11 @@ namespace GardenGroup.Models
             
 
         }
+
+        public Ticket()
+        {
+        }
+
         public void AddTicketLog(TicketLog ticketLog)
         {
             TicketLogs.Add(ticketLog);

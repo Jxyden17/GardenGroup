@@ -33,7 +33,7 @@
                     <td>@tickets.Datum_open</td>
                     <td>
                         <a asp-action="Details" asp-route-id="@tickets.Id">Details</a> |
-                        <a asp-action="Edit" asp-route-id="@tickets.Id">Edit</a> |
+                        <a href="/Ticket/Update/@tickets.Id">Edit</a> |
                         <a asp-action="Delete" asp-route-id="@tickets.Id">Delete</a>
                     </td>
                 </tr>

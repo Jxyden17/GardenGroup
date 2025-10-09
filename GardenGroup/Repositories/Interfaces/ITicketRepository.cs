@@ -6,7 +6,8 @@ namespace GardenGroup.Repositories.Interfaces
     {
         void Add(Ticket ticket);
         List<Ticket> GetAll();
-        Ticket GetById(string id);
+        Ticket GetTicketById(string id);
+        void UpdateTicket(Ticket ticket);
         void Delete(string id);
     }
 }

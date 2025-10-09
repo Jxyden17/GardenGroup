@@ -1,5 +1,6 @@
 ﻿using GardenGroup.Models;
 using GardenGroup.Repositories.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace GardenGroup.Repositories
@@ -20,7 +21,7 @@ namespace GardenGroup.Repositories
             return users;
         }
 
-        public User GetById(string id)
+        public User GetUserById(string id)
         {
           User user =  _users.Find(user => user.Id == id).FirstOrDefault();
             return user;
@@ -33,6 +34,29 @@ namespace GardenGroup.Repositories
 
         public void Add(User user) =>
             _users.InsertOne(user);
+
+        public void UpdateUser(User user)
+        {
+            FilterDefinition<User> filter = Builders<User>.Filter.Eq("_id", new ObjectId(user.Id));
+
+            UpdateDefinition<User> update = Builders<User>.Update
+                .Set(u => u.Id, user.Id)
+                .Set(u => u.Name, user.Name)
+                .Set(u => u.LastName, user.LastName)
+                .Set(u => u.Role, user.Role)
+                .Set(u => u.Email, user.Email)
+                .Set(u => u.PhoneNumber, user.PhoneNumber)
+                .Set(u => u.City, user.City)
+                .Set(u => u.Password, user.Password)
+                .Set(u => u.Salt, user.Salt);
+
+            UpdateResult result = _users.UpdateOne(filter, update);
+
+            if (result.ModifiedCount == 0)
+            {
+                throw new Exception("No records updated!");
+            }
+        }
     }
 }
 

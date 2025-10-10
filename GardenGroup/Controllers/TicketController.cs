@@ -21,7 +21,7 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                List<Ticket> tickets = _repo.GetAll();
+                List<Ticket> tickets = _ticketService.GetAllTickets();
                 return View(tickets);
             }
             catch (Exception ex)
@@ -104,7 +104,7 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                _repo.Delete(id);
+                _ticketService.DeleteTicket(id);
                 return RedirectToAction("Index");
             }
             catch

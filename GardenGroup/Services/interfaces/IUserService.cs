@@ -8,5 +8,8 @@ namespace GardenGroup.Services.interfaces
        void AddUser(User user);
 
        void UpdateUser(User user);
+        List<User> GetAllUsers();
+        void DeleteUser(string id);
+
     }
 }

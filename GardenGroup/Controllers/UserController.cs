@@ -20,7 +20,7 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                List<User> users = _repo.GetAll();
+                List<User> users = _userService.GetAllUsers();
                 return View(users);
 
 
@@ -77,7 +77,7 @@ namespace GardenGroup.Controllers
         [HttpPost,]
         public IActionResult DeleteConfirmed(string id)
         {
-            _repo.Delete(id);
+            _userService.DeleteUser(id);
             return RedirectToAction("Index");
 
         }

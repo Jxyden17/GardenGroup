@@ -1,6 +1,6 @@
 ﻿namespace GardenGroup.Enums
 {
-    public enum UserTypes
+    public enum UserRoles
     {
         normal,serviceDesk
     }

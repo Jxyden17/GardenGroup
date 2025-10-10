@@ -7,5 +7,8 @@ namespace GardenGroup.Services.interfaces
         void add(Ticket ticket);
         void UpdateTicket(Ticket ticket);
         Ticket GetTicketById(string ticketId);
+        void DeleteTicket(string id);
+        List<Ticket> GetAllTickets();
+
     }
 }

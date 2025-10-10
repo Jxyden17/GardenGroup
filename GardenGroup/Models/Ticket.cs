@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using GardenGroup.Enums;
 
 namespace GardenGroup.Models
 {
@@ -16,10 +17,10 @@ namespace GardenGroup.Models
         public string? Id { get; set; }   // Uniek ticketnummer (1..100)
         DateTime Datum_open { get; set; }   // Startdatum
         DateTime Datum_close { get; set; }  // Sluitdatum
-        string Status { get; set; }          // "Open" | "In Progress" | "Waiting" | "Closed"
+        TicketStatuses Status { get; set; }          // "Open" | "In Progress" | "Waiting" | "Closed"
         string Title { get; set; }           // Titel van het ticket
-        string Type { get; set; }            // "Bug" | "Feature" | "Incident" | "Task"
-        string Prioriteit { get; set; }      // "Laag" | "Normaal" | "Hoog" | "Kritiek"
+        TicketTypes Type { get; set; }            // "Bug" | "Feature" | "Incident" | "Task"
+        TicketPrioriteiten Prioriteit { get; set; }      // "Laag" | "Normaal" | "Hoog" | "Kritiek"
         string Description { get; set; }     // Beschrijving
         int Creator { get; set; }         // Verwijzing naar userId (maker)
         int Solver { get; set; }          // Verwijzing naar userId (oplosser)
@@ -27,7 +28,7 @@ namespace GardenGroup.Models
         List<TicketLog> TicketLogs = new List<TicketLog>();            // Array van log entries
         public int StepsBeforeClosed { get { return TicketLogs.Count; } set; } // Aantal stappen tot ticket werd gesloten
 
-        public Ticket(string? id, string status, string title, string type, string prioriteit, string description, int creator, int solver, DateTime deadline)
+        public Ticket(string? id, TicketStatuses status, string title, TicketTypes type, TicketPrioriteiten prioriteit, string description, int creator, int solver, DateTime deadline)
         {
             Id = id;
             Datum_open = DateTime.Now;

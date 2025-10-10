@@ -1,9 +1,11 @@
-﻿namespace GardenGroup.Models
+﻿using GardenGroup.Enums;
+
+namespace GardenGroup.Models
 {
     public class TicketLog
     {
        int Step { get; set; }        // Volgnummer van de stap
-       string SctionType { get; set; }  // "CREATED" | "STATUS_CHANGED" | "COMMENTED"
+      TicketLogType SctionType { get; set; }  // "CREATED" | "STATUS_CHANGED" | "COMMENTED"
        string StatusFrom { get; set; }  // (optioneel, bij statuswissel)
        string StatusTo { get; set; }   // (optioneel, bij statuswissel)
        string Message { get; set; }     // (optioneel, bij comment)

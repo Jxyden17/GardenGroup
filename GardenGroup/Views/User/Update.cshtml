@@ -1,0 +1,57 @@
+﻿@model User
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<partial name="_ErrorMessage" />
+
+<form asp-controller="User" asp-action="Update" method="post">
+    <input type="hidden" name="Id" value="@Model?.Id" />
+
+    <div class="mb-3">
+        <label for="firstName" class="form-label">First Name</label>
+        <input type="text" id="firstName" name="Name" class="form-control" required value="@Model?.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label for="LastName" class="form-label">Last Name</label>
+        <input type="text" id="LastName" name="LastName" class="form-control" required value="@Model?.LastName" />
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" id="email" name="Email" class="form-control" required value="@Model?.Email" />
+    </div>
+
+    <div class="mb-3">
+        <label for="phoneNumber" class="form-label">Phone Number</label>
+        <input type="text" id="phoneNumber" name="PhoneNumber" class="form-control" required value="@Model?.PhoneNumber" />
+    </div>
+
+    <div class="mb-3">
+        <label for="city" class="form-label">City</label>
+        <input type="text" id="city" name="City" class="form-control" required value="@Model?.City" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label d-block">Role</label>
+        <div class="btn-group" role="group" aria-label="Role">
+            <input type="radio" class="btn-check" name="Role" id="btnRoleNormal" value="normal" autocomplete="off" @(Model?.Role == "normal" ? "checked" : "")>
+            <label class="btn btn-outline-primary" for="btnRoleNormal">Normal</label>
+
+            <input type="radio" class="btn-check" name="Rol" id="btnRoleServiceDesk" value="serviceDesk" autocomplete="off" @(Model?.Role == "serviceDesk" ? "checked" : "")>
+            <label class="btn btn-outline-primary" for="btnRoleServiceDesk">Service Desk</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" name="Password" class="form-control" required value="@Model?.Password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="/User/Index" class="btn btn-secondary ms-2">Back to List</a>
+</form>

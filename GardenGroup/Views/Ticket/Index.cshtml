@@ -1,0 +1,44 @@
+@model List<Ticket>
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+}
+
+<h1>Tickets</h1>
+
+<table class="table table-striped table-bordered align-middle">
+    <thead>
+        <tr>
+            <th scope="col">Nr</t>
+            <th scope="col">Title</th>
+            <th scope="col">Status</th>
+            <th scope="col">Prioriteit</th>
+            <th scope="col">Creator</t>
+            <th scope="col">Datum open</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int nr = 1;
+            foreach (Ticket tickets in Model)
+            {
+                <tr>
+                    <td>@nr</td>
+                    <td>@tickets.Title</td>
+                    <td>@tickets.Status</td>
+                    <td>@tickets.Prioriteit</td>
+                    <td>@tickets.Creator</td>
+                    <td>@tickets.Datum_open</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@tickets.Id">Details</a> |
+                        <a href="/Ticket/Update/@tickets.Id">Edit</a> |
+                        <a asp-action="Delete" asp-route-id="@tickets.Id">Delete</a>
+                    </td>
+                </tr>
+                nr++;
+            }
+        }
+    </tbody>
+</table>

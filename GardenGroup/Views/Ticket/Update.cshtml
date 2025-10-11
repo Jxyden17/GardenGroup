@@ -1,0 +1,99 @@
+﻿@model Ticket
+
+@{
+    ViewData["Title"] = "Edit Ticket";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<partial name="_ErrorMessage" />
+
+<form asp-controller="Ticket" asp-action="Update" method="post">
+    <input type="hidden" name="Id" value="@Model?.Id" />
+
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" id="title" name="Title" class="form-control" required value="@Model?.Title" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label d-block fw-bold mb-2">Type</label>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="Type" id="typeFeature" value="Feature" @(Model?.Type == "Feature" ? "checked" : "") />
+            <label class="form-check-label" for="typeFeature">Feature</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="Type" id="typeBug" value="Bug" @(Model?.Type == "Bug" ? "checked" : "") />
+            <label class="form-check-label" for="typeBug">Bug</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="Type" id="typeTask" value="Task" @(Model?.Type == "Task" ? "checked" : "") />
+            <label class="form-check-label" for="typeTask">Task</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label d-block fw-bold mb-2">Priority</label>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="Prioriteit" id="priorityNormaal" value="Normaal" @(Model?.Prioriteit == "Normaal" ? "checked" : "") />
+            <label class="form-check-label" for="priorityNormaal">Normaal</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="Prioriteit" id="priorityHoog" value="Hoog" @(Model?.Prioriteit == "Hoog" ? "checked" : "") />
+            <label class="form-check-label" for="priorityHoog">Hoog</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="Prioriteit" id="priorityLaag" value="Laag" @(Model?.Prioriteit == "Laag" ? "checked" : "") />
+            <label class="form-check-label" for="priorityLaag">Laag</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label d-block fw-bold mb-2">Status</label>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="Status" id="statusOpen" value="Open" @(Model?.Status == "Open" ? "checked" : "") />
+            <label class="form-check-label" for="statusOpen">Open</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="Status" id="statusClosed" value="Closed" @(Model?.Status == "Closed" ? "checked" : "") />
+            <label class="form-check-label" for="statusClosed">Closed</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="Status" id="statusInProgress" value="In Progress" @(Model?.Status == "In Progress" ? "checked" : "") />
+            <label class="form-check-label" for="statusInProgress">In Progress</label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea id="description" name="Description" class="form-control" rows="4" required>@Model?.Description</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="datumOpen" class="form-label">Date Opened</label>
+        <input type="datetime-local" id="datumOpen" name="Datum_open" class="form-control" value="@(Model?.Datum_open?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
+    </div>
+
+    <div class="mb-3">
+        <label for="datumClose" class="form-label">Date Closed</label>
+        <input type="datetime-local" id="datumClose" name="Datum_close" class="form-control" value="@(Model?.Datum_close?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
+    </div>
+
+    <div class="mb-3">
+        <label for="deadline" class="form-label">Deadline</label>
+        <input type="datetime-local" id="deadline" name="Deadline" class="form-control" value="@(Model?.Deadline?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
+    </div>
+
+    <div class="mb-3">
+        <label for="creator" class="form-label">Creator ID</label>
+        <input type="number" id="creator" name="Creator" class="form-control" value="@Model?.Creator" />
+    </div>
+
+    <div class="mb-3">
+        <label for="solver" class="form-label">Solver ID</label>
+        <input type="number" id="solver" name="Solver" class="form-control" value="@Model?.Solver" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="/Ticket/Index" class="btn btn-secondary ms-2">Back to List</a>
+</form>

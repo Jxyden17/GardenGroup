@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using GardenGroup.Enums;
 
 namespace GardenGroup.Models
 {
@@ -38,7 +39,7 @@ namespace GardenGroup.Models
         public DateTime? Deadline { get; set; }          // Deadline
         public List<TicketLog> TicketLogs = new List<TicketLog>();            // Array van log entries
         public int StepsBeforeClosed { get { return TicketLogs.Count; } } // Aantal stappen tot ticket werd gesloten
-
+ 
         public Ticket(string? id, int ticketId, string status, string title, string type, string prioriteit, string description, int creator, int solver, DateTime deadline)
         {
             Id = id;

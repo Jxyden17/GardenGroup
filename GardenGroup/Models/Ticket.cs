@@ -15,7 +15,6 @@ namespace GardenGroup.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }   // Uniek ticketnummer (1..100)
-
         [BsonElement("ticketId")]
         public int TicketId { get; set; }
         [BsonElement("datum_open")]
@@ -40,7 +39,7 @@ namespace GardenGroup.Models
         public DateTime? Deadline { get; set; }          // Deadline
         public List<TicketLog> TicketLogs = new List<TicketLog>();            // Array van log entries
         public int StepsBeforeClosed { get { return TicketLogs.Count; } } // Aantal stappen tot ticket werd gesloten
-
+ 
         public Ticket(string? id, int ticketId, string status, string title, string type, string prioriteit, string description, int creator, int solver, DateTime deadline)
         {
             Id = id;

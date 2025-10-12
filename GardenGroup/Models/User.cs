@@ -41,6 +41,7 @@ namespace GardenGroup.Models
 
         [BsonElement("password")]
         public string? Password { get; set; } = "";
+
         [BsonElement("salt")]
         public string? Salt { get; set; } = "";
 

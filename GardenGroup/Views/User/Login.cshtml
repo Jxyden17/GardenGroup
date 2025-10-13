@@ -6,11 +6,11 @@
 
 <partial name="_ErrorMessage" />
 
-<form asp-controller="Employee" asp-action="Login" method="post" class="mt-4">
+<form asp-controller="User" asp-action="Login" method="post" class="mt-4">
 
     <div class="mb-3">
-        <label for="UserName" class="form-label">Username</label>
-        <input type="text" id="UserName" name="UserName" class="form-control" placeholder="Your username" required value="@Model?.UserName" />
+        <label for="Email" class="form-label">E-Mail</label>
+        <input type="text" id="Email" name="email" class="form-control" placeholder="Your username" required value="@Model?.email" />
     </div>
 
     <div class="mb-3">

@@ -1,5 +1,6 @@
 ﻿using GardenGroup.Models;
 using GardenGroup.Repositories.Interfaces;
+using GardenGroup.Services.interfaces;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -9,10 +10,12 @@ namespace GardenGroup.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly IMongoCollection<User> _users;
+        private readonly IPasswordService _passwordService;
 
-        public UserRepository(IMongoDatabase db)
+        public UserRepository(IMongoDatabase db, IPasswordService passwordService)
         {
             _users = db.GetCollection<User>("Users");
+            _passwordService = passwordService;
         }
 
         public List<User> GetAll()
@@ -56,6 +59,14 @@ namespace GardenGroup.Repositories
                 throw new Exception("No records updated!");
             }
         }
+
+        public User GetUserByEmail(string email)
+        {
+            User user = _users.Find(user => user.Email == email ).FirstOrDefault();
+
+            return user;
+
+            
+        }
     }
 }
-

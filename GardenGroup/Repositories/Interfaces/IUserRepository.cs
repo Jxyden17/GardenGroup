@@ -10,6 +10,7 @@ namespace GardenGroup.Repositories.Interfaces
         void Delete(string id);
         // Future:
         void UpdateUser(User user);
+        User GetUserByEmail(string email);
     }
 }
 

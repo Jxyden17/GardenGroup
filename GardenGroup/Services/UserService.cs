@@ -57,5 +57,22 @@ namespace GardenGroup.Services
         {
             _userRepository.Delete(id);
         }
+
+        public User GetUserByLoginCredentials(string email, string password)
+        {
+            User user = _userRepository.GetUserByEmail(email);
+
+            if (user == null)
+                return null;
+
+            string interleavedSaltedPassword = _passwordService.InterleaveSalt(password, user.Salt);
+            string hashedInputPassword = _passwordService.HashPassword(interleavedSaltedPassword);
+
+
+            if (hashedInputPassword == user.Password)
+                return user;
+
+            return null;
+        }
     }
 }

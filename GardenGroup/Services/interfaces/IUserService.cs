@@ -10,6 +10,7 @@ namespace GardenGroup.Services.interfaces
        void UpdateUser(User user);
         List<User> GetAllUsers();
         void DeleteUser(string id);
+        User GetUserByLoginCredentials(string email, string password);
 
     }
 }

@@ -2,16 +2,16 @@
 {
     public class Login
     {
-        public string UserName { get; set; }
+        public string email { get; set; }
         public string Password { get; set; }
 
         public Login()
         {
         }
 
-        public Login(string userName, string password)
+        public Login(string Email, string password)
         {
-            UserName = userName;
+            email = Email;
             Password = password;
         }
     }

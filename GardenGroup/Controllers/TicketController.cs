@@ -8,12 +8,10 @@ namespace GardenGroup.Controllers
 {
     public class TicketController : Controller
     {
-        private readonly ITicketRepository _repo;
         private readonly ITicketService _ticketService;
 
-        public TicketController(ITicketRepository repo, ITicketService ticketService)
+        public TicketController(ITicketService ticketService)
         {
-            _repo = repo;
             _ticketService = ticketService;
         }
         // GET: TicketController
@@ -21,7 +19,7 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                List<Ticket> tickets = _repo.GetAll();
+                List<Ticket> tickets = _ticketService.GetAllTickets();
                 return View(tickets);
             }
             catch (Exception ex)
@@ -104,7 +102,7 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                _repo.Delete(id);
+                _ticketService.DeleteTicket(id);
                 return RedirectToAction("Index");
             }
             catch

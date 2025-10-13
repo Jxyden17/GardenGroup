@@ -8,12 +8,10 @@ namespace GardenGroup.Controllers
 {
     public class TicketController : Controller
     {
-        private readonly ITicketRepository _repo;
         private readonly ITicketService _ticketService;
 
-        public TicketController(ITicketRepository repo, ITicketService ticketService)
+        public TicketController(ITicketService ticketService)
         {
-            _repo = repo;
             _ticketService = ticketService;
         }
         // GET: TicketController

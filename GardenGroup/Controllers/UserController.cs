@@ -8,12 +8,10 @@ namespace GardenGroup.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
-        private readonly IUserRepository _repo;
 
-        public UserController(IUserService userService, IUserRepository repo)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _repo = repo;
         }
 
         public IActionResult Index()

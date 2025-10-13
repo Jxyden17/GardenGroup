@@ -27,5 +27,15 @@ namespace GardenGroup.Services
         {
             _ticketRepository.UpdateTicket(ticket);
         }
+
+        public void DeleteTicket(string id)
+        {
+            _ticketRepository.Delete(id);
+        }
+
+        public List<Ticket> GetAllTickets()
+        {
+           return  _ticketRepository.GetAll();
+        }
     }
 }

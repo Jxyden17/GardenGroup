@@ -40,7 +40,6 @@ namespace GardenGroup.Repositories
             FilterDefinition<User> filter = Builders<User>.Filter.Eq("_id", new ObjectId(user.Id));
 
             UpdateDefinition<User> update = Builders<User>.Update
-                .Set(u => u.Id, user.Id)
                 .Set(u => u.Name, user.Name)
                 .Set(u => u.LastName, user.LastName)
                 .Set(u => u.Role, user.Role)

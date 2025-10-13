@@ -39,7 +39,6 @@ namespace GardenGroup.Repositories
             FilterDefinition<Ticket> filter = Builders<Ticket>.Filter.Eq("_id", new ObjectId(ticket.Id));
 
             UpdateDefinition<Ticket> update = Builders<Ticket>.Update
-                .Set(t => t.TicketId, ticket.TicketId)
                 .Set(t => t.Datum_open, ticket.Datum_open)
                 .Set(t => t.Datum_close, ticket.Datum_close)
                 .Set(t => t.Status, ticket.Status)

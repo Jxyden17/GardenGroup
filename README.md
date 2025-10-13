@@ -8,3 +8,9 @@ Project NoSQL - Jaar 2 Periode 1
 
 Inholland Haarlem
 
+Create - Menno
+Read & Delete - Ernest
+Update - Jayden
+
+details pagina moet nog geupdate worden.
+

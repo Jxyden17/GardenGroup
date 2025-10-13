@@ -1,7 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using GardenGroup.Enums;
 
 namespace GardenGroup.Models
 {

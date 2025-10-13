@@ -14,8 +14,8 @@
             <th scope="col">Title</th>
             <th scope="col">Status</th>
             <th scope="col">Prioriteit</th>
-            <th scope="col">Creator</t>
             <th scope="col">Datum open</th>
+            <th scope="col">Deadline</th>
             <th scope="col"></th>
         </tr>
     </thead>
@@ -29,8 +29,8 @@
                     <td>@tickets.Title</td>
                     <td>@tickets.Status</td>
                     <td>@tickets.Prioriteit</td>
-                    <td>@tickets.Creator</td>
                     <td>@tickets.Datum_open</td>
+                    <td>@tickets.Deadline</td>
                     <td>
                         <a asp-action="Details" asp-route-id="@tickets.Id">Details</a> |
                         <a href="/Ticket/Update/@tickets.Id">Edit</a> |

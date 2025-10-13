@@ -35,7 +35,7 @@ namespace GardenGroup.Services
 
         public List<Ticket> GetAllTickets()
         {
-           return  _ticketRepository.GetAll();
+            return _ticketRepository.GetAll();
         }
     }
 }

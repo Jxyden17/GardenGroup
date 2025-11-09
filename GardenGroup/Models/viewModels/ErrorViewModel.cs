@@ -1,4 +1,4 @@
-namespace GardenGroup.Models
+namespace GardenGroup.Models.viewModels
 {
     public class ErrorViewModel
     {

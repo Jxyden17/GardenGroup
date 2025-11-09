@@ -18,11 +18,6 @@ namespace GardenGroup.Repositories
             _passwordService = passwordService;
         }
 
-        public List<User> GetAll()
-        {
-            List<User> users = _users.Find(FilterDefinition<User>.Empty).ToList();
-            return users;
-        }
 
         public User GetUserById(string id)
         {

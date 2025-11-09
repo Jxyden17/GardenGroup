@@ -1,15 +1,15 @@
-﻿namespace GardenGroup.Models
+﻿namespace GardenGroup.Models.viewModels
 {
-    public class Login
+    public class LoginViewModel
     {
         public string email { get; set; }
         public string Password { get; set; }
 
-        public Login()
+        public LoginViewModel()
         {
         }
 
-        public Login(string Email, string password)
+        public LoginViewModel(string Email, string password)
         {
             email = Email;
             Password = password;

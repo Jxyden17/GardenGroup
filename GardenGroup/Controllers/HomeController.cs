@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using GardenGroup.Models;
+using GardenGroup.Models.viewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GardenGroup.Controllers

@@ -1,97 +1,150 @@
 ﻿using System.Security.Claims;
 using GardenGroup.Models;
-using GardenGroup.Models.Extensions;
+using GardenGroup.Models.viewModels;
 using GardenGroup.Repositories.Interfaces;
 using GardenGroup.Services.interfaces;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GardenGroup.Controllers
 {
     public class UserController : Controller
     {
         private readonly IUserService _userService;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
         {
             _userService = userService;
+            _signInManager = signInManager;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public IActionResult Index()
         {
             try
             {
-                List<User> users = _userService.GetAllUsers();
+                List<ApplicationUser> users = _userManager.Users.ToList();
+
                 return View(users);
-
-
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                ViewBag.ErrorMessage = "Fout bij data van users ophalen probeer later.";
-                return View(new List<User>());
+                ViewBag.ErrorMessage = "Fout bij data van users ophalen, probeer later.";
+                return View(new List<ApplicationUser>());
             }
         }
 
         [AllowAnonymous]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
+
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login(Login loginModel)
+        public async Task<IActionResult> Login(LoginViewModel loginModel)
         {
-            User? user =  _userService.GetUserByLoginCredentials(loginModel.email, loginModel.Password);
-            try
+            if (!ModelState.IsValid)
             {
-                if(user == null)
-                {
-                    ViewBag.ErrorMessage = "Invalid email or password.";
-                    return View(loginModel);
-                }
-                else
-                {
-                    //Create user claims
-                    List<Claim> claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Email),
-                    new Claim("UserId", user.Id),
-                    new Claim(ClaimTypes.Role, user.Role)
-                };
-
-                    ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-
-                    AuthenticationProperties authProperties = new AuthenticationProperties
-                    {
-                        IsPersistent = true,
-                        ExpiresUtc = DateTime.UtcNow.AddMinutes(30)
-                    };
-
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties);
-                    return RedirectToAction("Index", "Ticket");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                ViewBag.ErrorMessage = $"An error occurred: {ex.Message}";
+                ViewBag.ErrorMessage = "Invalid form submission.";
                 return View(loginModel);
             }
 
+            // Find user in Identity system
+            ApplicationUser user = await _userManager.FindByEmailAsync(loginModel.email);
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = "Invalid email/password.";
+                return View(loginModel);
+            }
+
+            // Attempt sign-in
+            var result = await _signInManager.PasswordSignInAsync(user, loginModel.Password, isPersistent: true, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                // Optionally: load domain user info (not required for Identity)
+                return RedirectToAction("Index", "Ticket");
+            }
+
+            if (result.IsLockedOut)
+            {
+                ViewBag.ErrorMessage = "Account locked. Try again later.";
+            }
+            else
+            {
+                ViewBag.ErrorMessage = "Invalid email or password.";
+            }
+
+            return View(loginModel);
         }
 
 
-        public IActionResult Logout()
+        [Authorize]
+        public async Task<IActionResult> Logout()
         {
-            HttpContext.Session.Remove("LoggedInUser");
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Login", "User");
         }
+
+        public IActionResult Create()
+        {
+            return View(new CreateUserViewModel());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateUserViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ErrorMessage = "Form validation failed.";
+                return View(model);
+            }
+
+            // Check if email already exists
+            ApplicationUser existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                ViewBag.ErrorMessage = "Email is already in use.";
+                return View(model);
+            }
+
+            ApplicationUser user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                City = model.City,
+                DisplayRole = model.Role,
+                EmailConfirmed = true
+            };
+
+            IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+
+            if (!result.Succeeded)
+            {
+                ViewBag.ErrorMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+                return View(model);
+            }
+
+            if (!await _roleManager.RoleExistsAsync(model.Role))
+            {
+                await _roleManager.CreateAsync(new ApplicationRole { Name = model.Role });
+            }
+
+            await _userManager.AddToRoleAsync(user, model.Role);
+
+            TempData["SuccessMessage"] = $"User {user.Email} created successfully!";
+            return RedirectToAction("Index");
+        }
+
 
         public IActionResult Details(string id)
         {
@@ -99,32 +152,87 @@ namespace GardenGroup.Controllers
             return View(user);
         }
 
-        [HttpPost]
-        public ActionResult Update(User user)
+        [HttpGet]
+        public async Task<IActionResult> Update(string id)
         {
-            try
+            if (string.IsNullOrEmpty(id))
             {
-                _userService.UpdateUser(user);
-                TempData["ConfirmMessage"] = "Your user has been edited succesfully";
+                ViewBag.ErrorMessage = "Invalid user ID.";
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
+
+            ApplicationUser user = await _userManager.FindByIdAsync(id);
+            if (user == null)
             {
-                ViewBag.ErrorMessage = $"An error occured: {ex.Message}";
-                return View(user);
+                ViewBag.ErrorMessage = "User not found.";
+                return RedirectToAction("Index");
             }
+
+
+            var roles = await _userManager.GetRolesAsync(user);
+            UpdateUserViewModel model = new UpdateUserViewModel
+            {
+                Id = user.Id.ToString(),
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                City = user.City,
+                Role = roles.FirstOrDefault() ?? "User" // Default role
+            };
+
+            ViewBag.AllRoles = new List<string> { "User", "ServiceDesk", "Admin" }; // For radio buttons
+            return View(model);
         }
 
-        [HttpGet]
-        public ActionResult Update(string? id)
+        [HttpPost]
+        public async Task<IActionResult> Update(UpdateUserViewModel model)
         {
-            if (id == null)
+            ApplicationUser user = await _userManager.FindByIdAsync(model.Id);
+            if (user == null)
             {
-                return NotFound();
+                ViewBag.ErrorMessage = "User not found.";
+                return RedirectToAction("Index");
             }
 
-            User user = _userService.GetUserById(id);
-            return View(user);
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.Email = model.Email;
+            user.UserName = model.Email; // Keep UserName in sync with email
+            user.PhoneNumber = model.PhoneNumber;
+            user.City = model.City;
+
+            IdentityResult result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                ViewBag.AllRoles = new List<string> { "User", "ServiceDesk", "Admin" };
+                ViewBag.ErrorMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+                return View(model);
+            }
+
+            // Update password if changed
+            if (!string.IsNullOrEmpty(model.Password))
+            {
+                string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                IdentityResult passResult = await _userManager.ResetPasswordAsync(user, token, model.Password);
+                if (!passResult.Succeeded)
+                {
+                    ViewBag.AllRoles = new List<string> { "User", "ServiceDesk", "Admin" };
+                    ViewBag.ErrorMessage = string.Join(", ", passResult.Errors.Select(e => e.Description));
+                    return View(model);
+                }
+            }
+
+            // Update role if changed
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (!currentRoles.Contains(model.Role))
+            {
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                await _userManager.AddToRoleAsync(user, model.Role);
+            }
+
+            TempData["ConfirmMessage"] = "User updated successfully";
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -141,14 +249,6 @@ namespace GardenGroup.Controllers
             return RedirectToAction("Index");
 
         }
-
-        //[HttpPost]
-        //public IActionResult Create(string name, string email)
-        //{
-        //    var user = new User { Name = name, Email = email };
-        //    _repo.Add(user);
-        //    return RedirectToAction("Index");
-        //}
     }
 
 }

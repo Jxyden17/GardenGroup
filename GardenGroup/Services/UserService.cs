@@ -48,10 +48,6 @@ namespace GardenGroup.Services
             _userRepository.UpdateUser(copyUser);
         }
 
-        public List<User> GetAllUsers()
-        {
-            return _userRepository.GetAll();
-        }
 
         public void DeleteUser(string id)
         {

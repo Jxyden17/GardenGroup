@@ -6,6 +6,8 @@ using GardenGroup.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using AspNetCore.Identity.Mongo;
+using GardenGroup.Models;
 
 namespace GardenGroup
 {
@@ -48,6 +50,37 @@ namespace GardenGroup
 
                 return client.GetDatabase(dbName);
             });
+
+            builder.Services
+                .AddIdentityMongoDbProvider<ApplicationUser, ApplicationRole>(identityOptions =>
+                {
+                    identityOptions.Password.RequiredLength = 8;
+                    identityOptions.Password.RequireNonAlphanumeric = false;
+                    identityOptions.Password.RequireDigit = true;
+                    identityOptions.Password.RequireUppercase = false;
+                },
+                mongoIdentityOptions =>
+                {
+                    mongoIdentityOptions.ConnectionString = builder.Configuration["Mongo_ConnectionString"];
+                    mongoIdentityOptions.UsersCollection = "AspNetUsers"; 
+                    mongoIdentityOptions.RolesCollection = "AspNetRoles";
+                });
+
+            builder.Services.AddControllersWithViews(options =>
+            {
+               var policy = new AuthorizationPolicyBuilder()
+                   .RequireAuthenticatedUser()
+                   .Build();
+               options.Filters.Add(new AuthorizeFilter(policy));
+            });
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/User/Login";
+                options.LogoutPath = "/User/Logout";
+                options.AccessDeniedPath = "/Home/Error";
+            });
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddSingleton<IPasswordService, PasswordService>();
@@ -60,23 +93,6 @@ namespace GardenGroup
 
             builder.Services.AddSession();
             builder.Services.AddDistributedMemoryCache();
-
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
-                {
-                    options.LoginPath = "/User/Login";
-                    options.AccessDeniedPath = "/Home/Error";
-                });
-
-            builder.Services.AddControllersWithViews(options =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
-            });
-
-
 
             var app = builder.Build();
 

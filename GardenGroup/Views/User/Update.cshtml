@@ -1,55 +1,53 @@
-﻿@model User
-
+﻿@model GardenGroup.Models.viewModels.UpdateUserViewModel
 @{
     ViewData["Title"] = "Edit User";
 }
 
 <h1>@ViewData["Title"]</h1>
-
 <partial name="_ErrorMessage" />
 
-<form asp-controller="User" asp-action="Update" method="post">
-    <input type="hidden" name="Id" value="@Model?.Id" />
+<form asp-action="Update" method="post">
+    <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
-        <label for="firstName" class="form-label">First Name</label>
-        <input type="text" id="firstName" name="Name" class="form-control" required value="@Model?.Name" />
+        <label asp-for="FirstName" class="form-label"></label>
+        <input asp-for="FirstName" class="form-control" required />
     </div>
 
     <div class="mb-3">
-        <label for="LastName" class="form-label">Last Name</label>
-        <input type="text" id="LastName" name="LastName" class="form-control" required value="@Model?.LastName" />
+        <label asp-for="LastName" class="form-label"></label>
+        <input asp-for="LastName" class="form-control" required />
     </div>
 
     <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" id="email" name="Email" class="form-control" required value="@Model?.Email" />
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" required />
     </div>
 
     <div class="mb-3">
-        <label for="phoneNumber" class="form-label">Phone Number</label>
-        <input type="text" id="phoneNumber" name="PhoneNumber" class="form-control" required value="@Model?.PhoneNumber" />
+        <label asp-for="PhoneNumber" class="form-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
     </div>
 
     <div class="mb-3">
-        <label for="city" class="form-label">City</label>
-        <input type="text" id="city" name="City" class="form-control" required value="@Model?.City" />
+        <label asp-for="City" class="form-label"></label>
+        <input asp-for="City" class="form-control" />
     </div>
 
     <div class="mb-3">
         <label class="form-label d-block">Role</label>
         <div class="btn-group" role="group" aria-label="Role">
-            <input type="radio" class="btn-check" name="Role" id="btnRoleNormal" value="normal" autocomplete="off" @(Model?.Role == "normal" ? "checked" : "")>
-            <label class="btn btn-outline-primary" for="btnRoleNormal">Normal</label>
-
-            <input type="radio" class="btn-check" name="Role" id="btnRoleServiceDesk" value="serviceDesk" autocomplete="off" @(Model?.Role == "serviceDesk" ? "checked" : "")>
-            <label class="btn btn-outline-primary" for="btnRoleServiceDesk">Service Desk</label>
+            @foreach (var role in ViewBag.AllRoles as List<string>)
+            {
+                <input type="radio" class="btn-check" name="Role" id="role_@role" value="@role" autocomplete="off" @(Model.Role == role ? "checked" : "")>
+                <label class="btn btn-outline-primary" for="role_@role">@role</label>
+            }
         </div>
     </div>
 
     <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" id="password" name="Password" class="form-control" required value="@Model?.Password" />
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" type="password" class="form-control" placeholder="Leave blank to keep current password" />
     </div>
 
     <button type="submit" class="btn btn-primary">Save Changes</button>

@@ -10,7 +10,7 @@ namespace GardenGroup.Models
        string StatusTo { get; set; }   // (optioneel, bij statuswissel)
        string Message { get; set; }     // (optioneel, bij comment)
        DateTime At { get; set; }           // Tijdstip van de actie
-       User Actor { get; set; } 
+       ApplicationUser Actor { get; set; } 
         // Snapshot van de user die actie deed
 
 

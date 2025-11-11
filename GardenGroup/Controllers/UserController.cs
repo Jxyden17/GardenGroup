@@ -15,12 +15,14 @@ namespace GardenGroup.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly IEmailService _emailService;
 
-        public UserController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+        public UserController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IEmailService emailService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _roleManager = roleManager;
+            _emailService = emailService;
         }
 
         // ---------------- Index ---------------- //
@@ -249,12 +251,12 @@ namespace GardenGroup.Controllers
                 if (string.IsNullOrEmpty(id))
                     return RedirectWithError("Invalid user ID.");
 
-                var user = await _userManager.FindByIdAsync(id);
+                ApplicationUser user = await _userManager.FindByIdAsync(id);
                 if (user == null)
                     return RedirectWithError("User not found.");
 
                 var roles = await _userManager.GetRolesAsync(user);
-                var model = new DeleteUserViewModel
+                DeleteUserViewModel model = new DeleteUserViewModel
                 {
                     Id = user.Id.ToString(),
                     FirstName = user.FirstName,
@@ -302,6 +304,82 @@ namespace GardenGroup.Controllers
                 return RedirectToAction("Index");
             }
         }
+
+        // ---------------- Forgot Password ---------------- //
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword() => View();
+
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                TempData["ErrorMessage"] = "Please enter your email address.";
+                return View();
+            }
+
+            ApplicationUser user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                TempData["ConfirmMessage"] = "If an account with that email exists, a reset link has been sent.";
+                Console.WriteLine("Failed to find user. -forgot password method");
+                return RedirectToAction("Login");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetLink = Url.Action("ResetPassword", "User",
+                new { token, email = user.Email }, Request.Scheme);
+
+            string html = $@"
+                <h3>Password Reset Request</h3>
+                <p>Click the link below to reset your password:</p>
+                <a href='{resetLink}'>{resetLink}</a>";
+
+            await _emailService.SendEmailAsync(user.Email, "Password Reset - GardenGroup", html);
+
+            TempData["ConfirmMessage"] = "If an account with that email exists, a reset link has been sent.";
+            return RedirectToAction("Login");
+        }
+
+
+        // ---------------- Reset Password ---------------- //
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            if (token == null || email == null)
+                return RedirectToAction("Login");
+
+            return View(new ResetPasswordViewModel { Token = token, Email = email });
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+                return RedirectToAction("Login");
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+
+            if (result.Succeeded)
+            {
+                TempData["ConfirmMessage"] = "Password reset successfully.";
+                return RedirectToAction("Login");
+            }
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError("", error.Description);
+
+            return View(model);
+        }
+
 
         // ---------------- Private Helper Methods ---------------- //
 

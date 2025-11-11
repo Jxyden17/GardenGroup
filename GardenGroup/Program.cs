@@ -87,6 +87,11 @@ namespace GardenGroup
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
             builder.Services.AddScoped<ITicketService, TicketService>();
 
+            builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+            builder.Services.AddSingleton(resolver => resolver.GetRequiredService<Microsoft.Extensions.Options.IOptions<SmtpOptions>>().Value);
+
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
             builder.Services.AddSession();
             builder.Services.AddDistributedMemoryCache();
 

@@ -17,4 +17,4 @@ De gebruiker moet in staat zijn om zijn/haar wachtwoord te resetten via een rese
 Het is vereist om hiervoor het MVC Framework (C#) of het MVC-patroon (Java, PHP, etc.) te gebruiken bij de implementatie.
 
 Om de Individual Functionality te kunnen testen, gebruik de volgende tool:
-👉 smtp4dev - v3.10.3
+👉 smtp4dev - v3.10.3 - https://github.com/rnwood/smtp4dev

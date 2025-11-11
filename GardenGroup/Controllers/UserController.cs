@@ -60,7 +60,7 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                ApplicationUser user = await _userManager.FindByEmailAsync(loginModel.email);
+                ApplicationUser? user = await _userManager.FindByEmailAsync(loginModel.email);
                 if (user == null)
                 {
                     ViewBag.ErrorMessage = "Invalid email/password.";
@@ -248,31 +248,19 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(id))
-                    return RedirectWithError("Invalid user ID.");
+                if (!ValidateUserId(id, out IActionResult errorResult))
+                    return errorResult;
 
-                ApplicationUser user = await _userManager.FindByIdAsync(id);
+                ApplicationUser? user = await FindUserByIdAsync(id);
                 if (user == null)
                     return RedirectWithError("User not found.");
 
-                var roles = await _userManager.GetRolesAsync(user);
-                DeleteUserViewModel model = new DeleteUserViewModel
-                {
-                    Id = user.Id.ToString(),
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber,
-                    City = user.City,
-                    Role = roles.FirstOrDefault() ?? "User"
-                };
-
+                DeleteUserViewModel model = await MapUserToDeleteViewModel(user);
                 return View(model);
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred while loading delete confirmation.";
-                Console.WriteLine(ex.ToString());
+                HandleDeleteException(ex, "loading delete confirmation");
                 return RedirectToAction("Index");
             }
         }
@@ -283,14 +271,14 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(id))
-                    return RedirectWithError("Invalid user ID.");
+                if (!ValidateUserId(id, out IActionResult errorResult))
+                    return errorResult;
 
-                var user = await _userManager.FindByIdAsync(id);
+                ApplicationUser? user = await FindUserByIdAsync(id);
                 if (user == null)
                     return RedirectWithError("User not found.");
 
-                IdentityResult result = await _userManager.DeleteAsync(user);
+                IdentityResult result = await DeleteUserAsync(user);
                 if (!result.Succeeded)
                     return RedirectWithError(string.Join(", ", result.Errors.Select(e => e.Description)));
 
@@ -299,8 +287,7 @@ namespace GardenGroup.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An unexpected error occurred while deleting the user.";
-                Console.WriteLine(ex.ToString());
+                HandleDeleteException(ex, "deleting the user");
                 return RedirectToAction("Index");
             }
         }
@@ -328,47 +315,30 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(email))
-                {
-                    TempData["ErrorMessage"] = "Please enter your email address.";
-                    return View();
-                }
+                if (!ValidateEmailInput(email, out IActionResult errorResult))
+                    return errorResult;
 
-                ApplicationUser? user = await _userManager.FindByEmailAsync(email);
+                ApplicationUser? user = await FindUserByEmailAsync(email);
                 if (user == null)
                 {
-                    //Don't reveal that the user doesn't exist
-                    TempData["ConfirmMessage"] = "If an account with that email exists, a reset link has been sent.";
-                    Console.WriteLine($"[WARN] ForgotPassword: User not found for email {email}");
+                    LogUserNotFound(email);
+                    SetConfirmMessage();
                     return RedirectToAction("Login");
                 }
 
-                string token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                string? resetLink = Url.Action("ResetPassword", "User",new { token, email = user.Email }, Request.Scheme);
+                bool emailSent = await TrySendPasswordResetEmailAsync(user);
 
-                string html = $@"
-                    <h3>Password Reset Request</h3>
-                    <p>Click the link below to reset your password:</p>
-                    <a href='{resetLink}'>Reset Password</a>";
-
-                try
-                {
-                    await _emailService.SendEmailAsync(user.Email, "Password Reset - GardenGroup", html);
+                if (emailSent)
                     Console.WriteLine($"Password reset email sent to {user.Email}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Sending reset email failed: {ex}");
-                    // Don't expose SMTP failure to user for security
-                }
+                else
+                    Console.WriteLine($"Failed to send reset email to {user.Email}");
 
-                TempData["ConfirmMessage"] = "If an account with that email exists, a reset link has been sent.";
+                SetConfirmMessage();
                 return RedirectToAction("Login");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ForgotPassword (POST): {ex}");
-                TempData["ErrorMessage"] = "An error occurred while processing your request. Please try again later.";
+                HandleForgotPasswordException(ex);
                 return View();
             }
         }
@@ -382,18 +352,14 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(email))
-                {
-                    TempData["ErrorMessage"] = "Invalid password reset link.";
-                    return RedirectToAction("Login");
-                }
+                if (!ValidateResetPasswordInput(token, email, out IActionResult? errorResult))
+                    return errorResult;
 
                 return View(new ResetPasswordViewModel { Token = token, Email = email });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ResetPassword (GET) Exception: {ex}");
-                TempData["ErrorMessage"] = "An unexpected error occurred while loading the password reset page. Please try again.";
+                HandleResetPasswordException(ex, "loading the password reset page");
                 return RedirectToAction("Login");
             }
         }
@@ -404,41 +370,26 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    ViewData["ErrorMessage"] = "Please correct the errors in the form and try again.";
+                if (!ValidateResetPasswordForm(model))
                     return View(model);
-                }
 
-                ApplicationUser? user = await _userManager.FindByEmailAsync(model.Email);
+                ApplicationUser? user = await FindUserByEmailAsync(model.Email);
                 if (user == null)
                 {
-                    Console.WriteLine($"ResetPassword (POST): User not found for email {model.Email}");
-                    TempData["ErrorMessage"] = "Invalid or expired password reset link.";
+                    HandleUserNotFound(model.Email);
                     return RedirectToAction("Login");
                 }
 
-                IdentityResult result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+                IdentityResult result = await ResetUserPasswordAsync(user, model.Token, model.Password);
 
                 if (result.Succeeded)
-                {
-                    Console.WriteLine($"Password reset successful for {model.Email}");
-                    TempData["ConfirmMessage"] = "Your password has been reset successfully.";
-                    return RedirectToAction("Login");
-                }
+                    return HandleSuccessfulPasswordReset(model.Email);
 
-                // Collect all validation errors (e.g., password too weak)
-                string combinedErrors = string.Join("<br>", result.Errors.Select(e => e.Description));
-
-                Console.WriteLine($"Password reset failed for {model.Email}: {combinedErrors}");
-
-                ViewData["ErrorMessage"] = $"Password reset failed:<br>{combinedErrors}";
-                return View(model);
+                return HandleFailedPasswordReset(model, result);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ResetPassword (POST) Exception: {ex}");
-                ViewData["ErrorMessage"] = "An unexpected error occurred while resetting your password. Please try again later.";
+                HandleResetPasswordException(ex, "resetting the password");
                 return View(model);
             }
         }
@@ -446,6 +397,7 @@ namespace GardenGroup.Controllers
 
         // ---------------- Private Helper Methods ---------------- //
 
+        #region Redirect / Error Handling
         private IActionResult RedirectWithError(string message)
         {
             try
@@ -459,6 +411,32 @@ namespace GardenGroup.Controllers
             }
         }
 
+        private void HandleDeleteException(Exception ex, string context)
+        {
+            Console.WriteLine($"Delete operation exception while {context}: {ex}");
+            TempData["ErrorMessage"] = $"An unexpected error occurred while {context}. Please try again later.";
+        }
+
+        private void HandleResetPasswordException(Exception ex, string context)
+        {
+            Console.WriteLine($"ResetPassword Exception while {context}: {ex}");
+            TempData["ErrorMessage"] = $"An unexpected error occurred while {context}. Please try again later.";
+        }
+
+        private void HandleForgotPasswordException(Exception ex)
+        {
+            Console.WriteLine($"ForgotPassword (POST): {ex}");
+            TempData["ErrorMessage"] = "An error occurred while processing your request. Please try again later.";
+        }
+
+        private void HandleUserNotFound(string email)
+        {
+            Console.WriteLine($"ResetPassword (POST): User not found for email {email}");
+            TempData["ErrorMessage"] = "Invalid or expired password reset link.";
+        }
+        #endregion
+
+        #region Role Helpers
         private List<string> GetAllRoles()
         {
             try
@@ -471,16 +449,47 @@ namespace GardenGroup.Controllers
             }
         }
 
-        private async Task<bool> EmailExists(string email)
+        private async Task EnsureRoleExists(string roleName)
         {
             try
             {
-                ApplicationUser? existingUser = await _userManager.FindByEmailAsync(email);
-                return existingUser != null;
+                if (!await _roleManager.RoleExistsAsync(roleName))
+                {
+                    IdentityResult roleResult = await _roleManager.CreateAsync(new ApplicationRole { Name = roleName });
+                    if (!roleResult.Succeeded)
+                    {
+                        throw new InvalidOperationException(
+                            $"Failed to create role '{roleName}': {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+                    }
+                }
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Failed to check if email '{email}' exists.", ex);
+                throw new InvalidOperationException($"Failed to ensure role '{roleName}' exists.", ex);
+            }
+        }
+        #endregion
+
+        #region User CRUD Helpers
+        private async Task<ApplicationUser?> FindUserByIdAsync(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
+
+        private async Task<ApplicationUser?> FindUserByEmailAsync(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
+
+        private async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password)
+        {
+            try
+            {
+                return await _userManager.CreateAsync(user, password);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to create user '{user.Email}'.", ex);
             }
         }
 
@@ -504,38 +513,6 @@ namespace GardenGroup.Controllers
             }
         }
 
-        private async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password)
-        {
-            try
-            {
-                return await _userManager.CreateAsync(user, password);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Failed to create user '{user.Email}'.", ex);
-            }
-        }
-
-        private async Task EnsureRoleExists(string roleName)
-        {
-            try
-            {
-                if (!await _roleManager.RoleExistsAsync(roleName))
-                {
-                    IdentityResult roleResult = await _roleManager.CreateAsync(new ApplicationRole { Name = roleName });
-                    if (!roleResult.Succeeded)
-                    {
-                        throw new InvalidOperationException(
-                            $"Failed to create role '{roleName}': {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Failed to ensure role '{roleName}' exists.", ex);
-            }
-        }
-
         private async Task<UpdateUserViewModel> MapUserToViewModel(ApplicationUser user)
         {
             try
@@ -556,6 +533,21 @@ namespace GardenGroup.Controllers
             {
                 throw new InvalidOperationException($"Failed to map ApplicationUser '{user.Email}' to UpdateUserViewModel.", ex);
             }
+        }
+
+        private async Task<DeleteUserViewModel> MapUserToDeleteViewModel(ApplicationUser user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            return new DeleteUserViewModel
+            {
+                Id = user.Id.ToString(),
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                City = user.City,
+                Role = roles.FirstOrDefault() ?? "User"
+            };
         }
 
         private async Task<IdentityResult> UpdateUserBasicInfo(ApplicationUser user, UpdateUserViewModel model)
@@ -620,6 +612,134 @@ namespace GardenGroup.Controllers
                 throw new InvalidOperationException($"Failed to update roles for user '{user.Email}'.", ex);
             }
         }
+
+        private async Task<IdentityResult> DeleteUserAsync(ApplicationUser user)
+        {
+            return await _userManager.DeleteAsync(user);
+        }
+
+        private async Task<bool> EmailExists(string email)
+        {
+            try
+            {
+                ApplicationUser? existingUser = await _userManager.FindByEmailAsync(email);
+                return existingUser != null;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to check if email '{email}' exists.", ex);
+            }
+        }
+        #endregion
+
+        #region Email / Password Reset Helpers
+        private async Task<bool> TrySendPasswordResetEmailAsync(ApplicationUser user)
+        {
+            try
+            {
+                string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                string? resetLink = Url.Action("ResetPassword", "User", new { token, email = user.Email }, Request.Scheme);
+
+                string html = BuildPasswordResetEmailBody(resetLink);
+                await _emailService.SendEmailAsync(user.Email, "Password Reset - GardenGroup", html);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Sending reset email failed for {user.Email}: {ex}");
+                return false;
+            }
+        }
+
+        private static string BuildPasswordResetEmailBody(string resetLink)
+        {
+            return $@"
+            <h3>Password Reset Request</h3>
+            <p>Click the link below to reset your password:</p>
+            <a href='{resetLink}'>Reset Password</a>";
+        }
+
+        private async Task<IdentityResult> ResetUserPasswordAsync(ApplicationUser user, string token, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, token, newPassword);
+        }
+
+        private IActionResult HandleSuccessfulPasswordReset(string email)
+        {
+            Console.WriteLine($"Password reset successful for {email}");
+            TempData["ConfirmMessage"] = "Your password has been reset successfully.";
+            return RedirectToAction("Login");
+        }
+
+        private IActionResult HandleFailedPasswordReset(ResetPasswordViewModel model, IdentityResult result)
+        {
+            string combinedErrors = string.Join("<br>", result.Errors.Select(e => e.Description));
+            Console.WriteLine($"Password reset failed for {model.Email}: {combinedErrors}");
+            ViewData["ErrorMessage"] = $"Password reset failed:<br>{combinedErrors}";
+            return View(model);
+        }
+
+        private void LogUserNotFound(string email)
+        {
+            Console.WriteLine($"ForgotPassword: User not found for email {email}");
+        }
+
+        private void SetConfirmMessage()
+        {
+            TempData["ConfirmMessage"] = "If an account with that email exists, a reset link has been sent.";
+        }
+        #endregion
+
+        #region Validation Helpers
+        private bool ValidateEmailInput(string email, out IActionResult errorResult)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                TempData["ErrorMessage"] = "Please enter your email address.";
+                errorResult = View();
+                return false;
+            }
+
+            errorResult = null!;
+            return true;
+        }
+
+        private bool ValidateResetPasswordInput(string token, string email, out IActionResult errorResult)
+        {
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(email))
+            {
+                TempData["ErrorMessage"] = "Invalid password reset link.";
+                errorResult = RedirectToAction("Login");
+                return false;
+            }
+
+            errorResult = null!;
+            return true;
+        }
+
+        private bool ValidateResetPasswordForm(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewData["ErrorMessage"] = "Please correct the errors in the form and try again.";
+                return false;
+            }
+            return true;
+        }
+
+        private bool ValidateUserId(string? id, out IActionResult errorResult)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                errorResult = RedirectWithError("Invalid user ID.");
+                return false;
+            }
+
+            errorResult = null!;
+            return true;
+        }
+        #endregion
     }
 }
 

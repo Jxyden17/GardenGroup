@@ -16,7 +16,7 @@ namespace GardenGroup.Services
 
         public EmailService(SmtpOptions options)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
+            _options = options;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string htmlBody)
@@ -24,12 +24,12 @@ namespace GardenGroup.Services
             if (string.IsNullOrWhiteSpace(toEmail))
                 throw new ArgumentException("Recipient email address is required.", nameof(toEmail));
 
-            var message = new MimeMessage();
+            MimeMessage message = new MimeMessage();
             message.From.Add(new MailboxAddress("GardenGroup", _options.FromAddress));
             message.To.Add(MailboxAddress.Parse(toEmail));
             message.Subject = subject;
 
-            var bodyBuilder = new BodyBuilder
+            BodyBuilder bodyBuilder = new BodyBuilder
             {
                 HtmlBody = htmlBody,
                 TextBody = Regex.Replace(htmlBody, "<.*?>", string.Empty)
@@ -38,7 +38,7 @@ namespace GardenGroup.Services
 
             try
             {
-                using var client = new SmtpClient();
+                using SmtpClient client = new SmtpClient();
 
                 // Connect
                 await client.ConnectAsync(_options.Host, _options.Port,
@@ -58,7 +58,7 @@ namespace GardenGroup.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to send email to {toEmail}: {ex.Message}");
-                throw; // Let higher layer handle/log if necessary
+                throw; 
             }
         }
     }

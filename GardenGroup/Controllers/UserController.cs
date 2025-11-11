@@ -161,7 +161,7 @@ namespace GardenGroup.Controllers
                 if (string.IsNullOrEmpty(id))
                     return RedirectWithError("Invalid user ID.");
 
-                var user = await _userManager.FindByIdAsync(id);
+                ApplicationUser? user = await _userManager.FindByIdAsync(id);
                 if (user == null)
                     return RedirectWithError("User not found.");
 
@@ -187,11 +187,11 @@ namespace GardenGroup.Controllers
                 if (string.IsNullOrEmpty(id))
                     return RedirectWithError("Invalid user ID.");
 
-                var user = await _userManager.FindByIdAsync(id);
+                ApplicationUser? user = await _userManager.FindByIdAsync(id);
                 if (user == null)
                     return RedirectWithError("User not found.");
 
-                var model = await MapUserToViewModel(user);
+                UpdateUserViewModel model = await MapUserToViewModel(user);
                 ViewBag.AllRoles = GetAllRoles();
 
                 return View(model);
@@ -209,7 +209,7 @@ namespace GardenGroup.Controllers
         {
             try
             {
-                var user = await _userManager.FindByIdAsync(model.Id);
+                ApplicationUser? user = await _userManager.FindByIdAsync(model.Id);
                 if (user == null)
                     return RedirectWithError("User not found.");
 
@@ -222,7 +222,7 @@ namespace GardenGroup.Controllers
                     return View(model);
                 }
 
-                var passwordResult = await UpdatePasswordIfChanged(user, model.Password);
+                IdentityResult? passwordResult = await UpdatePasswordIfChanged(user, model.Password);
                 if (passwordResult != null && !passwordResult.Succeeded)
                 {
                     ViewBag.ErrorMessage = string.Join(", ", passwordResult.Errors.Select(e => e.Description));

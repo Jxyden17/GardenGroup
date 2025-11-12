@@ -123,7 +123,7 @@ namespace GardenGroup.Controllers
             catch (Exception)
             {
                 ViewBag.ErrorMessage = "archiveren mislukt";
-                return RedirectToAction("Index");
+                return View();
             }
             
         }

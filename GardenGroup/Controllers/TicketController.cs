@@ -9,10 +9,12 @@ namespace GardenGroup.Controllers
     public class TicketController : Controller
     {
         private readonly ITicketService _ticketService;
+        private readonly IArchiveService _archiveService;
 
-        public TicketController(ITicketService ticketService)
+        public TicketController(ITicketService ticketService,IArchiveService archiveService)
         {
             _ticketService = ticketService;
+            _archiveService = archiveService;
         }
         // GET: TicketController
         public ActionResult Index()
@@ -109,6 +111,21 @@ namespace GardenGroup.Controllers
             {
                 return View();
             }
+        }
+        public ActionResult Archive()
+        {
+            try
+            {
+                List<Ticket> tickets = _ticketService.GetAllTickets();
+                _archiveService.Archive(tickets);
+                return View();
+            }
+            catch (Exception)
+            {
+                ViewBag.ErrorMessage = "archiveren mislukt";
+                return RedirectToAction("Index");
+            }
+            
         }
     }
 }

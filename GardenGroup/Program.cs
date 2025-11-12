@@ -55,6 +55,9 @@ namespace GardenGroup
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
             builder.Services.AddScoped<ITicketService, TicketService>();
 
+            builder.Services.AddSingleton<IArchiveService, ArchiveService>();
+            builder.Services.AddSingleton<IArchiveRepository, ArchiveRepository>();
+
 
             var app = builder.Build();
 

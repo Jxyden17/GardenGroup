@@ -1,11 +1,11 @@
-﻿using System.Security.Claims;
-using GardenGroup.Models;
+﻿using GardenGroup.Models;
 using GardenGroup.Models.viewModels;
 using GardenGroup.Repositories.Interfaces;
 using GardenGroup.Services.interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GardenGroup.Controllers
@@ -16,13 +16,15 @@ namespace GardenGroup.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IEmailService _emailService;
+        private readonly ITicketService _ticketService;
 
-        public UserController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IEmailService emailService)
+        public UserController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IEmailService emailService, ITicketService ticketService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _roleManager = roleManager;
             _emailService = emailService;
+            _ticketService = ticketService;
         }
 
         // ---------------- Index ---------------- //
@@ -69,7 +71,7 @@ namespace GardenGroup.Controllers
 
                 var result = await _signInManager.PasswordSignInAsync(user, loginModel.Password, true, false);
                 if (result.Succeeded)
-                    return RedirectToAction("Index", "Ticket");
+                    return RedirectToAction("Dashboard", "User");
 
                 ViewBag.ErrorMessage = result.IsLockedOut
                     ? "Account locked. Try again later."
@@ -233,6 +235,8 @@ namespace GardenGroup.Controllers
                 TempData["ConfirmMessage"] = "User updated successfully";
 
                 return RedirectToAction("Index");
+
+
             }
             catch (Exception ex)
             {
@@ -393,7 +397,35 @@ namespace GardenGroup.Controllers
                 return View(model);
             }
         }
+        // ---------------- Dashboard ---------------- //
+        [HttpGet]
+        public async Task<IActionResult> Dashboard()
+        {
+            try
+            {
+                ApplicationUser? user = await _userManager.GetUserAsync(User);
+                if (user == null) return Unauthorized();
 
+                List<Ticket> myTickets = _ticketService.GetMyTickets(user.Id.ToString());
+                DashboardViewModel stats = await _ticketService.BuildForCurrentUserAsync(user.Id.ToString());
+
+                DashboardPageViewModel page = new DashboardPageViewModel
+                {
+                    DisplayName = !string.IsNullOrWhiteSpace(user.FirstName)
+                        ? user.FirstName
+                        : (!string.IsNullOrWhiteSpace(user.Email) ? user.Email : $"User {user.Id}"),
+                    MyTickets = myTickets,
+                    Stats = stats
+                };
+
+                return View("Dashboard", page);
+            }
+            catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "Unexpected error while loading the dashboard: " + ex.Message;
+                return RedirectToAction("Index", "Ticket");
+            }
+        }
 
         // ---------------- Private Helper Methods ---------------- //
 

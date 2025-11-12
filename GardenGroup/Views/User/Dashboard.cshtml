@@ -1,0 +1,32 @@
+﻿@model GardenGroup.Models.viewModels.DashboardPageViewModel
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success text-center" role="alert" style="margin-top: 10px;">
+        <strong>Success:</strong> @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger text-center" role="alert" style="margin-top: 10px;">
+        <strong>Error:</strong> @TempData["ErrorMessage"]
+    </div>
+}
+@{
+    ViewData["Title"] = "Dashboard" 
+    ;
+}
+
+<h1 class="mb-4 text-center">@ViewData["Title"] van @Model.DisplayName</h1>
+
+<div class="d-flex flex-wrap gap-3 justify-content-center align-items-center">
+    @await Html.PartialAsync("_StatusDonut", @Model.Stats.Unresolved)
+    @await Html.PartialAsync("_StatusDonut", @Model.Stats.PastDeadline)
+</div>
+
+<p class="mb-3">
+    <a asp-controller="Ticket" asp-action="Create" class="btn btn-success">+ New Ticket</a>
+</p>
+<div class="mt-4">
+    @await Html.PartialAsync("_TicketsTable", @Model.MyTickets)
+</div>

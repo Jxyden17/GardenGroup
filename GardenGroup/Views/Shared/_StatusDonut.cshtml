@@ -1,0 +1,27 @@
+﻿@model GardenGroup.Models.viewModels.ChartViewModel
+@{
+    string id = "chart_" + Guid.NewGuid().ToString("N");
+    int value = Model.Value1;
+    int total = Model.Value2 == 0 ? 1 : Model.Value2;
+    int remainder = total - value;
+}
+<div class="card shadow-sm text-center border-0" style="width:300px; display:inline-block; margin:10px;">
+    <div class="card-body">
+        <h5 class="fw-bold">@Model.Title</h5>
+        <p class="text-muted mb-2">@Model.Subtitle</p>
+        <div style="position: relative; width: 180px; height: 180px; margin: auto;">
+            <canvas id="@id"></canvas>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:bold;color:#555;">
+                @(Model.Value2 > 0 ? $"{Model.Value1}/{Model.Value2}" : $"{Model.Value1}")
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    new Chart(document.getElementById("@id"), {
+      type: 'doughnut',
+      data: { labels: ['Value','Rest'], datasets: [{ data:[@value,@remainder], backgroundColor: ['@Model.Color','#e6e6e6'], borderWidth: 0 }] },
+      options: { cutout:'80%', plugins:{ legend:{ display:false } }, responsive:true }
+    });
+</script>

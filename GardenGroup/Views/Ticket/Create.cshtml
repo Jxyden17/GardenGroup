@@ -1,0 +1,57 @@
+﻿@model GardenGroup.Models.Ticket
+@using GardenGroup.Enums
+
+@{
+    ViewData["Title"] = "New Ticket";
+}
+
+<h1>Create Ticket</h1>
+
+<form asp-controller="Ticket" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label class="form-label fw-bold" for="Title">Title</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold" for="Description">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Type</label><br />
+        @foreach (TicketTypes type in Enum.GetValues(typeof(TicketTypes)))
+        {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="Type" id="type_@type" value="@type" />
+                <label class="form-check-label" for="type_@type">@type</label>
+            </div>
+        }
+        <span asp-validation-for="Type" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Priority</label><br />
+        @foreach (TicketPrioriteiten p in Enum.GetValues(typeof(TicketPrioriteiten)))
+        {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="Prioriteit" id="prio_@p" value="@p" />
+                <label class="form-check-label" for="prio_@p">@p</label>
+            </div>
+        }
+        <span asp-validation-for="Prioriteit" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-bold">Deadline</label>
+        <input asp-for="Deadline" type="date" class="form-control" />
+        <span asp-validation-for="Deadline" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Ticket</button>
+    <a asp-controller="User" asp-action="Dashboard" class="btn btn-outline-secondary ms-2">Cancel</a>
+</form>

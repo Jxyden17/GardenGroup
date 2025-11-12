@@ -5,6 +5,7 @@ using GardenGroup.Repositories.Interfaces;
 using GardenGroup.Services.interfaces;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using MongoDB.Driver;
 
 namespace GardenGroup.Services
 {
@@ -67,6 +68,17 @@ namespace GardenGroup.Services
             return tickets;
         }
 
+        public List<Ticket> GetMySolvedTickets(string id)
+        {
+            List<Ticket> tickets = _ticketRepository.GetBySolver(id);
+            return tickets;
+        }
+
+        public void GetMyClaimedAndClosedCounts(string solverId, out int claimed, out int closedByMe)
+        {
+            _ticketRepository.GetMyClaimedAndClosedCounts(solverId, out claimed, out closedByMe);
+        }
+
         public async Task<DashboardCountsViewModel> GetCountsForCurrentUserAsync(string id)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
@@ -85,18 +97,55 @@ namespace GardenGroup.Services
 
             DashboardViewModel viewModel = new DashboardViewModel();
 
-            viewModel.Unresolved.Title = "Unresolved incidents";
-            viewModel.Unresolved.Subtitle = "All tickets currently open";
+            viewModel.Unresolved.Title = "Open Ticket";
+            viewModel.Unresolved.Subtitle = "All tickets that are open by You";
             viewModel.Unresolved.Value1 = counts.Unresolved;
             viewModel.Unresolved.Value2 = counts.Total;
             viewModel.Unresolved.Color = "#f39c12";
 
             viewModel.PastDeadline.Title = "Incidents past deadline";
-            viewModel.PastDeadline.Subtitle = "These tickets need your immediate attention";
+            viewModel.PastDeadline.Subtitle = "These tickets are now pass DeadLine";
             viewModel.PastDeadline.Value1 = counts.PastDeadline;
             viewModel.PastDeadline.Value2 = 0;
             viewModel.PastDeadline.Color = "#c0392b";
 
+            return viewModel;
+        }
+
+        public async Task<DashboardViewModel> BuildForSolver(string solverId)
+        {
+            _ticketRepository.GetMyClaimedAndClosedCounts(solverId, out int claimed, out int closedByMe);
+
+            DashboardViewModel viewModel = new DashboardViewModel();
+
+            viewModel.ClaimedCount.Title = "Tickets claimed by You";
+            viewModel.ClaimedCount.Subtitle = "Tickets you are currently working on";
+            viewModel.ClaimedCount.Value1 = claimed;
+            viewModel.ClaimedCount.Value2 = 0;
+            viewModel.ClaimedCount.Color = "#2980b9";
+
+            viewModel.ClosedByMeCount.Title = "Tickets closed by You";
+            viewModel.ClosedByMeCount.Subtitle = "Tickets you have successfully closed";
+            viewModel.ClosedByMeCount.Value1 = closedByMe;
+            viewModel.ClosedByMeCount.Value2 = 0; 
+            viewModel.ClosedByMeCount.Color = "#27ae60";
+
+            return viewModel;
+        }
+
+        public async Task<DashboardViewModel> BuildForAdmin(string adminId)
+        {
+            List<Ticket> allTicekts = _ticketRepository.GetAll();
+
+            int totalTickets = allTicekts.Count;
+
+            DashboardViewModel viewModel = new DashboardViewModel();
+            
+            viewModel.TotaalTicketsOpen.Title = "Total Tickets";
+            viewModel.TotaalTicketsOpen.Subtitle = "All tickets that are currently open in the system";
+            viewModel.TotaalTicketsOpen.Value1 = totalTickets;
+            viewModel.TotaalTicketsOpen.Value2 = totalTickets;
+            viewModel.TotaalTicketsOpen.Color = "#8e44ad";
             return viewModel;
         }
 

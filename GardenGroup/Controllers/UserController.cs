@@ -71,7 +71,7 @@ namespace GardenGroup.Controllers
 
                 var result = await _signInManager.PasswordSignInAsync(user, loginModel.Password, true, false);
                 if (result.Succeeded)
-                    return RedirectToAction("Dashboard", "User");
+                    return RedirectToAction("Employee", "Dashboard");
 
                 ViewBag.ErrorMessage = result.IsLockedOut
                     ? "Account locked. Try again later."
@@ -395,35 +395,6 @@ namespace GardenGroup.Controllers
             {
                 HandleResetPasswordException(ex, "resetting the password");
                 return View(model);
-            }
-        }
-        // ---------------- Dashboard ---------------- //
-        [HttpGet]
-        public async Task<IActionResult> Dashboard()
-        {
-            try
-            {
-                ApplicationUser? user = await _userManager.GetUserAsync(User);
-                if (user == null) return Unauthorized();
-
-                List<Ticket> myTickets = _ticketService.GetMyTickets(user.Id.ToString());
-                DashboardViewModel stats = await _ticketService.BuildForCurrentUserAsync(user.Id.ToString());
-
-                DashboardPageViewModel page = new DashboardPageViewModel
-                {
-                    DisplayName = !string.IsNullOrWhiteSpace(user.FirstName)
-                        ? user.FirstName
-                        : (!string.IsNullOrWhiteSpace(user.Email) ? user.Email : $"User {user.Id}"),
-                    MyTickets = myTickets,
-                    Stats = stats
-                };
-
-                return View("Dashboard", page);
-            }
-            catch(Exception ex)
-            {
-                TempData["ErrorMessage"] = "Unexpected error while loading the dashboard: " + ex.Message;
-                return RedirectToAction("Index", "Ticket");
             }
         }
 

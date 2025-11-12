@@ -59,7 +59,7 @@ namespace GardenGroup.Controllers
             {
                 await _ticketService.add(user.Id.ToString(), ticket);
                 TempData["SuccessMessage"] = "Ticket created successfully!";
-                return RedirectToAction("Dashboard", "User");
+                return RedirectToAction("Employee", "Dashboard");
             }
             catch (Exception ex)
             {
@@ -147,7 +147,7 @@ namespace GardenGroup.Controllers
                     TempData["ErrorMessage"] = "Transfer failed (ticket not found or not modified).";
                 }
 
-                return RedirectToAction("Dashboard", "User");
+                return RedirectToAction("ServiceDesk", "Dashboard");
             }
             catch (Exception ex)
             {

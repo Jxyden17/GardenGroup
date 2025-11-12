@@ -1,4 +1,5 @@
 ﻿using GardenGroup.Models;
+using GardenGroup.Enums;
 using GardenGroup.Models.viewModels;
 using GardenGroup.Repositories.Interfaces;
 using MongoDB.Bson;
@@ -64,6 +65,15 @@ namespace GardenGroup.Repositories
         {
             List<Ticket> tickets = _tickets
                 .Find(ticket => ticket.Creator == creatorId && ticket.Status != Enums.TicketStatuses.Closed)
+                .Limit(100)
+                .ToList();
+            return tickets;
+        }
+
+        public List<Ticket> GetBySolver(string solverId)
+        {
+            List<Ticket> tickets = _tickets
+                .Find(ticket => ticket.Solver == solverId && ticket.Status != Enums.TicketStatuses.Closed)
                 .Limit(100)
                 .ToList();
             return tickets;
@@ -135,6 +145,12 @@ namespace GardenGroup.Repositories
             UpdateResult result = _tickets.UpdateOne(filter, update);
 
             return result.MatchedCount == 1 && result.ModifiedCount == 1;
+        }
+
+        public void GetMyClaimedAndClosedCounts(string solverId, out int claimed, out int closedByMe)
+        {
+            claimed = (int)_tickets.CountDocuments(ticket => ticket.Solver == solverId && ticket.Status != Enums.TicketStatuses.Closed);
+            closedByMe = (int)_tickets.CountDocuments(ticket => ticket.Solver == solverId && ticket.Status == Enums.TicketStatuses.Closed);
         }
     }
 }

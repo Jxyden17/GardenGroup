@@ -3,6 +3,11 @@ using GardenGroup.Repositories;
 using MongoDB.Driver;
 using GardenGroup.Services.interfaces;
 using GardenGroup.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using AspNetCore.Identity.Mongo;
+using GardenGroup.Models;
 
 namespace GardenGroup
 {
@@ -45,16 +50,53 @@ namespace GardenGroup
 
                 return client.GetDatabase(dbName);
             });
+
+            builder.Services
+                .AddIdentityMongoDbProvider<ApplicationUser, ApplicationRole>(identityOptions =>
+                {
+                    identityOptions.Password.RequiredLength = 8;
+                    identityOptions.Password.RequireNonAlphanumeric = false;
+                    identityOptions.Password.RequireDigit = true;
+                    identityOptions.Password.RequireUppercase = false;
+                },
+                mongoIdentityOptions =>
+                {
+                    mongoIdentityOptions.ConnectionString = builder.Configuration["Mongo_ConnectionString"];
+                    mongoIdentityOptions.UsersCollection = "AspNetUsers"; 
+                    mongoIdentityOptions.RolesCollection = "AspNetRoles";
+                });
+
+            builder.Services.AddControllersWithViews(options =>
+            {
+               var policy = new AuthorizationPolicyBuilder()
+                   .RequireAuthenticatedUser()
+                   .Build();
+               options.Filters.Add(new AuthorizeFilter(policy));
+            });
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/User/Login";
+                options.LogoutPath = "/User/Logout";
+                options.AccessDeniedPath = "/User/Login";
+            });
+
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-            builder.Services.AddSingleton<IPasswordService, PasswordService>();
-
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
             builder.Services.AddScoped<ITicketService, TicketService>();
+          
+            builder.Services.AddScoped<IArchiveService, ArchiveService>();
+            builder.Services.AddScoped<IArchiveRepository, ArchiveRepository>();
 
+            builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+            builder.Services.AddSingleton(resolver => resolver.GetRequiredService<Microsoft.Extensions.Options.IOptions<SmtpOptions>>().Value);
+
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
+            builder.Services.AddSession();
+            builder.Services.AddDistributedMemoryCache();
 
             var app = builder.Build();
 
@@ -70,12 +112,14 @@ namespace GardenGroup
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseSession();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=User}/{action=Login}/{id?}");
 
             app.Run();
         }

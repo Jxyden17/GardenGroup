@@ -1,19 +1,30 @@
-﻿using GardenGroup.Models;
+using GardenGroup.Models;
+using GardenGroup.Models.viewModels;
 using GardenGroup.Repositories.Interfaces;
 using GardenGroup.Services.interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 
 namespace GardenGroup.Controllers
 {
     public class TicketController : Controller
     {
         private readonly ITicketService _ticketService;
+        private readonly IArchiveService _archiveService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public TicketController(ITicketService ticketService)
+        public TicketController(ITicketService ticketService, UserManager<ApplicationUser> userManager, IArchiveService archiveService)
         {
             _ticketService = ticketService;
+            _userManager = userManager;
+            _archiveService = archiveService;
+
         }
+
+        [Authorize(Roles = "Admin,ServiceDesk")]
         // GET: TicketController
         public ActionResult Index()
         {
@@ -30,35 +41,43 @@ namespace GardenGroup.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,ServiceDesk")]
         // GET: TicketController/Details/5
         public ActionResult Details(string id)
         {
             Ticket ticket = _ticketService.GetTicketById(id);
-            return View(ticket);
+            return View("Details", ticket);
         }
 
+        [Authorize(Roles = "Admin,ServiceDesk")]
         // GET: TicketController/Create
         public ActionResult Create()
         {
-            return View();
+            Ticket ticket = new Ticket();
+            return View("Create", ticket);
         }
 
         // POST: TicketController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        [Authorize(Roles = "Admin,ServiceDesk")]
+        public async Task<IActionResult> Create(Ticket ticket)
         {
+            ApplicationUser? user = await _userManager.GetUserAsync(User);
             try
             {
-                return RedirectToAction(nameof(Index));
+                await _ticketService.add(user.Id.ToString(), ticket);
+                TempData["SuccessMessage"] = "Ticket created successfully!";
+                return RedirectToAction("Employee", "Dashboard");
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                TempData["ErrorMessage"] = "Failed to create ticket: " + ex.Message;
+                return View("Create", ticket);
             }
         }
 
-    
+        [Authorize(Roles = "Admin,ServiceDesk")]
         [HttpPost]
         public ActionResult Update(Ticket ticket)
         {
@@ -76,6 +95,7 @@ namespace GardenGroup.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public ActionResult Update(string? id)
         {
             if (id == null)
@@ -89,26 +109,77 @@ namespace GardenGroup.Controllers
 
 
         // GET: TicketController/Delete/5
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public ActionResult Delete(string id)
+
         {
             Ticket ticket = _ticketService.GetTicketById(id);
-            return View(ticket);
+            return View("Delete", ticket);
         }
 
         // POST: TicketController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public ActionResult DeleteConfirmed(string id, IFormCollection collection)
         {
             try
             {
                 _ticketService.DeleteTicket(id);
+                TempData["SuccessMessage"] = "Ticket deleted successfully!";
                 return RedirectToAction("Index");
             }
-            catch
+            catch(Exception ex)
             {
+                TempData["ErrorMessage"] = "Failed to delete ticket: " + ex.Message;
                 return View();
             }
+        }
+
+        [Authorize(Roles = "Admin,ServiceDesk")]
+        public ActionResult Archive()
+        {
+            try
+            {
+                List<Ticket> tickets = _ticketService.GetAllTickets();
+                _archiveService.Archive(tickets);
+                return View();
+            }
+            catch (Exception)
+            {
+                ViewBag.ErrorMessage = "archiveren mislukt";
+                return View();
+            }
+
+        }
+
+
+        [Authorize(Roles = "Admin,ServiceDesk")]
+        [HttpGet]
+        public IActionResult Transfer(string id)
+        {
+            Ticket ticket = _ticketService.GetTicketById(id);
+            var serviceDeskUsers =  _userManager.GetUsersInRoleAsync("ServiceDesk").Result;
+            ViewBag.Users = serviceDeskUsers;
+            return View(ticket);
+        }
+
+        [Authorize(Roles = "Admin,ServiceDesk")]
+        [HttpPost]
+        public async Task<IActionResult> Transfer(string id, string newSolverUserId)
+        {
+            try
+            {
+                List<Ticket> tickets = _ticketService.GetAllTickets();
+                _archiveService.Archive(tickets);
+                return View();
+            }
+            catch (Exception)
+            {
+                ViewBag.ErrorMessage = "archiveren mislukt";
+                return View();
+            }
+            
         }
     }
 }

@@ -30,7 +30,13 @@
             Creator
         </dt>
         <dd class="col-sm-10">
-            @Model.Creator
+            @Model.CreatorName
+        </dd>
+        <dt class="col-sm-2">
+            Solver
+        </dt>
+        <dd class="col-sm-10">
+            @Model.SolverName
         </dd>
         <dt class="col-sm-2">
             Datum open
@@ -40,7 +46,6 @@
         </dd>
     </dl>
     <p>
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a> |
-        <a asp-action="Index" class="btn btn-secondary">Back</a>
+        <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
     </p>
 </div>

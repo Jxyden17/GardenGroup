@@ -69,3 +69,12 @@ Individuele functionaliteit:
 Archiving the entire database (For example all tickets older than 2 years): With a simple click
 on a buton, several entries before a certain date, are moved to a secondary (archive)
 database.
+
+
+
+##Gebruikersnamen en wachtwoord.
+User: user@test.nl
+ServiceDesk: sd@test.nl
+Admin: admin@test.nl
+
+Wachtwoord: Welkom1234

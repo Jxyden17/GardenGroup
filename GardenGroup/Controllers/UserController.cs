@@ -1,13 +1,10 @@
 ﻿using GardenGroup.Enums;
 using GardenGroup.Models;
 using GardenGroup.Models.viewModels;
-using GardenGroup.Repositories.Interfaces;
 using GardenGroup.Services.interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace GardenGroup.Controllers
 {

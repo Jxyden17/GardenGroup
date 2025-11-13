@@ -2,6 +2,7 @@ using GardenGroup.Models;
 using GardenGroup.Models.viewModels;
 using GardenGroup.Repositories.Interfaces;
 using GardenGroup.Services.interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,8 @@ namespace GardenGroup.Controllers
             _archiveService = archiveService;
 
         }
+
+        [Authorize(Roles = "Admin,ServiceDesk")]
         // GET: TicketController
         public ActionResult Index()
         {
@@ -38,6 +41,7 @@ namespace GardenGroup.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,ServiceDesk")]
         // GET: TicketController/Details/5
         public ActionResult Details(string id)
         {
@@ -45,6 +49,7 @@ namespace GardenGroup.Controllers
             return View("Details", ticket);
         }
 
+        [Authorize(Roles = "Admin,ServiceDesk")]
         // GET: TicketController/Create
         public ActionResult Create()
         {
@@ -55,6 +60,7 @@ namespace GardenGroup.Controllers
         // POST: TicketController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public async Task<IActionResult> Create(Ticket ticket)
         {
             ApplicationUser? user = await _userManager.GetUserAsync(User);
@@ -71,7 +77,7 @@ namespace GardenGroup.Controllers
             }
         }
 
-    
+        [Authorize(Roles = "Admin,ServiceDesk")]
         [HttpPost]
         public ActionResult Update(Ticket ticket)
         {
@@ -89,6 +95,7 @@ namespace GardenGroup.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public ActionResult Update(string? id)
         {
             if (id == null)
@@ -102,7 +109,9 @@ namespace GardenGroup.Controllers
 
 
         // GET: TicketController/Delete/5
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public ActionResult Delete(string id)
+
         {
             Ticket ticket = _ticketService.GetTicketById(id);
             return View("Delete", ticket);
@@ -111,6 +120,7 @@ namespace GardenGroup.Controllers
         // POST: TicketController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public ActionResult DeleteConfirmed(string id, IFormCollection collection)
         {
             try
@@ -125,7 +135,38 @@ namespace GardenGroup.Controllers
                 return View();
             }
         }
+
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public ActionResult Archive()
+        {
+            try
+            {
+                List<Ticket> tickets = _ticketService.GetAllTickets();
+                _archiveService.Archive(tickets);
+                return View();
+            }
+            catch (Exception)
+            {
+                ViewBag.ErrorMessage = "archiveren mislukt";
+                return View();
+            }
+
+        }
+
+
+        [Authorize(Roles = "Admin,ServiceDesk")]
+        [HttpGet]
+        public IActionResult Transfer(string id)
+        {
+            Ticket ticket = _ticketService.GetTicketById(id);
+            var serviceDeskUsers =  _userManager.GetUsersInRoleAsync("ServiceDesk").Result;
+            ViewBag.Users = serviceDeskUsers;
+            return View(ticket);
+        }
+
+        [Authorize(Roles = "Admin,ServiceDesk")]
+        [HttpPost]
+        public async Task<IActionResult> Transfer(string id, string newSolverUserId)
         {
             try
             {

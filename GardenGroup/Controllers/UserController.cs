@@ -28,6 +28,7 @@ namespace GardenGroup.Controllers
         }
 
         // ---------------- Index ---------------- //
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public async Task<IActionResult> Index()
         {
             try
@@ -104,6 +105,7 @@ namespace GardenGroup.Controllers
         }
 
         // ---------------- Create ---------------- //
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public IActionResult Create()
         {
             try
@@ -119,6 +121,7 @@ namespace GardenGroup.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,ServiceDesk")]
         [HttpPost]
         public async Task<IActionResult> Create(CreateUserViewModel model)
         {
@@ -155,6 +158,7 @@ namespace GardenGroup.Controllers
         }
 
         // ---------------- Details ---------------- //
+        [Authorize(Roles = "Admin,ServiceDesk")]
         [HttpGet]
         public async Task<IActionResult> Details(string id)
         {
@@ -181,6 +185,7 @@ namespace GardenGroup.Controllers
         }
 
         // ---------------- Update ---------------- //
+        [Authorize(Roles = "Admin,ServiceDesk")]
         [HttpGet]
         public async Task<IActionResult> Update(string id)
         {
@@ -206,6 +211,7 @@ namespace GardenGroup.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,ServiceDesk")]
         [HttpPost]
         public async Task<IActionResult> Update(UpdateUserViewModel model)
         {
@@ -246,6 +252,7 @@ namespace GardenGroup.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,ServiceDesk")]
         // ---------------- Delete ---------------- //
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
@@ -269,6 +276,7 @@ namespace GardenGroup.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,ServiceDesk")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)

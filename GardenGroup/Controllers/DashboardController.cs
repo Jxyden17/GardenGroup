@@ -1,6 +1,7 @@
 ﻿using GardenGroup.Models;
 using GardenGroup.Models.viewModels;
 using GardenGroup.Services.interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,7 @@ namespace GardenGroup.Controllers
 
         // /Dashboard/Employee
         [HttpGet]
+        [Authorize(Roles = "Admin,ServiceDesk,User")]
         public async Task<IActionResult> Employee()
         {
             try
@@ -56,6 +58,7 @@ namespace GardenGroup.Controllers
 
         // /Dashboard/ServiceDesk
         [HttpGet]
+        [Authorize(Roles = "Admin,ServiceDesk")]
         public async Task<IActionResult> ServiceDesk()
         {
             try
@@ -89,6 +92,7 @@ namespace GardenGroup.Controllers
 
         // /Dashboard/Admin
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Admin()
         {
             try

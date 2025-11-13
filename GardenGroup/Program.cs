@@ -78,7 +78,7 @@ namespace GardenGroup
             {
                 options.LoginPath = "/User/Login";
                 options.LogoutPath = "/User/Logout";
-                options.AccessDeniedPath = "/Home/Error";
+                options.AccessDeniedPath = "/User/Login";
             });
 
             // Add services to the container.

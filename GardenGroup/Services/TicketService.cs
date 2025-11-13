@@ -34,15 +34,15 @@ namespace GardenGroup.Services
         public Ticket GetTicketById(string id)
         {
             Ticket ticket = _ticketRepository.GetTicketById(id);
-    if (ticket == null) return null; // make return type Ticket? if your interface allows
+            if (ticket == null) return null; // make return type Ticket? if your interface allows
 
-    List<ApplicationUser> users = _userManager.Users.ToList();
+            List<ApplicationUser> users = _userManager.Users.ToList();
 
-    ApplicationUser? creator = users.FirstOrDefault(u => u.Id.ToString() == ticket.Creator);
-    ApplicationUser? solver  = users.FirstOrDefault(u => u.Id.ToString() == ticket.Solver);
+            ApplicationUser? creator = users.FirstOrDefault(u => u.Id.ToString() == ticket.Creator);
+            ApplicationUser? solver  = users.FirstOrDefault(u => u.Id.ToString() == ticket.Solver);
 
-    ticket.CreatorName = creator?.FirstName ?? creator?.Email ?? "Unknown";
-    ticket.SolverName  = solver?.FirstName  ?? solver?.Email  ?? "Unassigned";
+            ticket.CreatorName = creator?.FirstName ?? creator?.Email ?? "Unknown";
+            ticket.SolverName  = solver?.FirstName  ?? solver?.Email  ?? "Unassigned";
             return ticket;
 
         }

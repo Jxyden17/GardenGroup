@@ -1,0 +1,31 @@
+﻿@*
+// ------------------------------ Dashboard van Employee ---------------------------------------
+// Auteur: Ernest Jureko
+// Verantwoordelijkheid:
+// Deze dashboard laat zien de statistieken van de ingelogde employee gebruiker zoals onopgeloste tickets en tickets die de deadline zijn gepasseerd.
+// maar die kan zelfs niet veel doen allen ticket aanmaken en zijn eigen tickets zien.
+// Ontwerpkeuzes:
+// - Om zo veel mogelij te vorkomen van fouten heb ik gekozen om aan Employee alleen zijn eigen tickets te laten zien en niet mogelijk om die te editeren of verwijderen.
+// -----------------------------------------------------------------------------
+*@ 
+@model GardenGroup.Models.viewModels.DashboardDataViewModel
+
+<partial name="_ErrorMessage" />
+@{
+    ViewData["Title"] = "Dashboard"
+    ;
+}
+
+<h1 class="mb-4 text-center">@ViewData["Title"] van @Model.DisplayName</h1>
+
+<div class="d-flex flex-wrap gap-3 justify-content-center align-items-center">
+    @await Html.PartialAsync("_StatusDonut", @Model.Stats.Unresolved)
+    @await Html.PartialAsync("_StatusDonut", @Model.Stats.PastDeadline)
+</div>
+
+<p class="mb-3">
+    <a asp-controller="Ticket" asp-action="Create" class="btn btn-success">+ New Ticket</a>
+</p>
+<div class="mt-4">
+    @await Html.PartialAsync("_TicketsTable", @Model.MyTickets)
+</div>

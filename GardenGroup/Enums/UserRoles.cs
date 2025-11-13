@@ -2,6 +2,6 @@
 {
     public enum UserRoles
     {
-        normal,serviceDesk
+        User, ServiceDesk, Admin
     }
 }

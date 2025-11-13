@@ -1,0 +1,31 @@
+﻿@*
+// ------------------------------ Dashboard van ServiceDesk ---------------------------------------
+// Auteur: Ernest Jureko
+// Verantwoordelijkheid:
+// ServiceDesk dashboard toont statistieken zoals aantal geclaimde tickets en gesloten tickets door de ingelogde ServiceDesk gebruiker.
+// Ontwerpkeuzes:
+// - Service desk gebruikers kunnen nog niet tickets claimen wel sluiten maar zonder reden er is nog geen logs dat we hebben gedaan om die te kunnen zien in ticket details.
+// -----------------------------------------------------------------------------
+*@ 
+@model GardenGroup.Models.viewModels.DashboardDataViewModel;
+
+<partial name="_ErrorMessage" />
+@{
+    ViewData["Title"] = "Dashboard"
+    ;
+}
+
+<h1 class="mb-4 text-center">@ViewData["Title"] van @Model.DisplayName</h1>
+
+<div class="d-flex flex-wrap gap-3 justify-content-center align-items-center">
+    @await Html.PartialAsync("_StatusDonut", @Model.Stats.ClaimedCount)
+    @await Html.PartialAsync("_StatusDonut", @Model.Stats.ClosedByMeCount)
+</div>
+
+@*Nog niet toegevoegd maar zo een list met beschikbaar tickets geven om die te claimen*@ 
+<p class="mb-3">
+    <a  class="btn btn-success">+ Get Ticket</a>
+</p>
+<div class="mt-4">
+    @await Html.PartialAsync("_TicketsTable", @Model.ClaimedByMe)
+</div>

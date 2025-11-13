@@ -1,0 +1,25 @@
+﻿@model GardenGroup.Models.viewModels.TransferTicketViewModel;
+@{
+    ViewData["Title"] = "Transfer Ticket";
+    var users = ViewBag.Users as List<GardenGroup.Models.ApplicationUser>;
+}
+
+<h2>Transfer Ticket: @Model.Ticket.Title</h2>
+
+<form asp-action="Transfer" asp-route-id="@Model.Ticket.Id" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Ticket.Id" />
+
+    <label for="newSolverId">Select user</label>
+    <select id="newSolverId" name="newSolverId" class="form-select" required>
+        <option value="">-- choose ServiceDesk user by email--</option>
+        @foreach (var u in Model.ServiceDeskUsers)
+        {
+            <option value="@u.Id">@u.Email</option>
+        }
+    </select>
+    <div>
+    <button type="submit" class="btn btn-primary mt-3">Transfer</button>
+        <a class="btn btn-outline-secondary mt-3" onclick="history.back()">Cancel</a>
+    </div>
+</form>

@@ -28,7 +28,7 @@
     <tbody>
         @{
             int nr = 1;
-            foreach (var user in Model)
+            foreach (ApplicationUser user in Model)
             {
                 <tr>
                     <td>@nr</td>
@@ -38,8 +38,8 @@
                     <td>@userRoles[user.Id.ToString()]</td>
                     <td>@user.City</td>
                     <td>
-                        <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@user.Id">Details</a>
-                        <a class="btn btn-sm btn-warning" asp-action="Update" asp-route-id="@user.Id">Edit</a>
+                        <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@user.Id">Details</a> |
+                        <a class="btn btn-sm btn-warning" asp-action="Update" asp-route-id="@user.Id">Edit</a> |
                         <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@user.Id">Delete</a>
                     </td>
                 </tr>

@@ -46,6 +46,6 @@
     <form asp-action="DeleteConfirmed" method="post">
         <input type="hidden" asp-for="Id" />
         <button type="submit" class="btn btn-danger">Delete</button>
-        <a asp-action="Index" class="btn btn-secondary">Back</a>
+        <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
     </form>
 </div>

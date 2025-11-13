@@ -10,13 +10,25 @@ Verantwoordelijkheden
 Jayden:
 
 The application has a built-in rights management system to differentiate between regular and Service Desk employees.
-Dit is gelukt; alle user-acties zijn ook geüpdatet zodat het werkt met het Identity Framework.
+alle user-acties zijn ook geüpdatet zodat het werkt met het Identity Framework.
 
-Individual Functionality: Forget Password-functionaliteit.
-De gebruiker moet in staat zijn om zijn/haar wachtwoord te resetten via een reset e-mail met een unieke link.
+Waarom heb ik voor het Microsoft identity framework met mongodb gekozen? 
+omdat het geadviseerd werdt om het te gebruiken zodat je makkelijke gebruik kan maken van rights management system en de andere extra functionaliteiten.
+
+Waarom zijn er meerdere viewModels die erg op elkaar lijken? 
+Door aparte viewModels te gebruiken maak je de applicatie meer modular waardoor latere aanpassingen in de code makkelijker worden.
+
+Individual Functionality: 
+Forget Password-functionaliteit. De gebruiker moet in staat zijn om zijn/haar wachtwoord te resetten via een reset e-mail met een unieke link.
 Het is vereist om hiervoor het MVC Framework (C#) of het MVC-patroon (Java, PHP, etc.) te gebruiken bij de implementatie.
 
-Om de Individual Functionality te kunnen testen, gebruik de volgende tool:
+Waarom heb ik  gekozen voor de Forget Password-functionaliteit?
+Omdat het een veelgebruikte functionaliteit is in webapplicaties en het biedt een goede gelegenheid om te werken met e-mailintegratie.
+Ik heb er ook voor gekozen om gebruik te maken van Mailkit omdat het een populaire en betrouwbare bibliotheek is voor het verzenden van e-mails in .NET-toepassingen.
+
+Ook heb ik gebruik gemaakt van het Identity Framework omdat het al ingebouwde methoden heeft voor het beheren van gebruikerswachtwoorden en beveiliging, wat de implementatie van de wachtwoordresetfunctionaliteit vereenvoudigt.
+
+Om de functionaliteit te testen heb ik gebruik gemaakt van smtp4dev, een lokale SMTP-server die e-mails opvangt zonder ze daadwerkelijk te verzenden wat lokaal testen heel gemakkelijk maakt.
 👉 smtp4dev - v3.10.3 - https://github.com/rnwood/smtp4dev
 
 
@@ -49,3 +61,11 @@ Hoewel dit nog niet in de huidige versie is geïmplementeerd, heb ik wel onderzo
 - Oplossing: Implementatie van Bootstrap Select (of een vergelijkbare library).
 - Voordeel: Dit voegt een zoekbalk toe binnenin de dropdown (live search). Hierdoor kunnen gebruikers simpelweg de naam van een collega typen om te filteren,
   in plaats van te scrollen. Dit is een standaard UX-patroon dat bij veel grote bedrijven wordt toegepast.
+
+
+Menno:
+
+Individuele functionaliteit:
+Archiving the entire database (For example all tickets older than 2 years): With a simple click
+on a buton, several entries before a certain date, are moved to a secondary (archive)
+database.

@@ -17,13 +17,15 @@ namespace GardenGroup.Repositories
 
         public void Archive(Archiver archiver)
         {
-            _archive.InsertMany(archiver.Tickets);
-            foreach (var ticket in archiver.Tickets)
+            if (archiver.Tickets.Count >= 1)
             {
-                string id = ticket.Id;
-                _tickets.DeleteOne(ticket => ticket.Id == id);
-            }   
-            
+                _archive.InsertMany(archiver.Tickets);
+                foreach (var ticket in archiver.Tickets)
+                {
+                    string id = ticket.Id;
+                    _tickets.DeleteOne(ticket => ticket.Id == id);
+                }
+            }
 
         }
         public List< Ticket> GetClosedTickets(List<Ticket> tickets)

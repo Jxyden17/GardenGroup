@@ -1,17 +1,16 @@
-﻿@model GardenGroup.Models.viewModels.DashboardDataViewModel
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success text-center" role="alert" style="margin-top: 10px;">
-        <strong>Success:</strong> @TempData["SuccessMessage"]
-    </div>
-}
+﻿@*
+// ------------------------------ Dashboard van Employee ---------------------------------------
+// Auteur: Ernest Jureko
+// Verantwoordelijkheid:
+// Deze dashboard laat zien de statistieken van de ingelogde employee gebruiker zoals onopgeloste tickets en tickets die de deadline zijn gepasseerd.
+// maar die kan zelfs niet veel doen allen ticket aanmaken en zijn eigen tickets zien.
+// Ontwerpkeuzes:
+// - Om zo veel mogelij te vorkomen van fouten heb ik gekozen om aan Employee alleen zijn eigen tickets te laten zien en niet mogelijk om die te editeren of verwijderen.
+// -----------------------------------------------------------------------------
+*@ 
+@model GardenGroup.Models.viewModels.DashboardDataViewModel
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger text-center" role="alert" style="margin-top: 10px;">
-        <strong>Error:</strong> @TempData["ErrorMessage"]
-    </div>
-}
+<partial name="_ErrorMessage" />
 @{
     ViewData["Title"] = "Dashboard"
     ;

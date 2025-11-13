@@ -1,4 +1,13 @@
-﻿namespace GardenGroup.Models.viewModels
+﻿// ------------------------------ ChartViewModel ---------------------------------------
+// Auteur: Ernest Jureko
+// Verantwoordelijkheid: ChartViewModel is een viewmodel dat de gegevens voor een grafiek op het dashboard vertegenwoordigt.
+//
+// Ontwerpkeuzes:
+// - Ik heb gekozen om die te maken zo dat ik hoef niet die elke keer te schrijfen zelf
+// - De value properties zijn generiek genoeg om verschillende soorten grafieken te ondersteunen.
+// -----------------------------------------------------------------------------
+
+namespace GardenGroup.Models.viewModels
 {
     public class ChartViewModel
     {
@@ -12,7 +21,7 @@
         {
             Title = "";
             Subtitle = "";
-            Color = "#f39c12";
+            Color = "";
         }
     }
 }

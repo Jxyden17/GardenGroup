@@ -6,6 +6,7 @@ using GardenGroup.Services.interfaces;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace GardenGroup.Services
 {
@@ -34,7 +35,8 @@ namespace GardenGroup.Services
         public Ticket GetTicketById(string id)
         {
             Ticket ticket = _ticketRepository.GetTicketById(id);
-            if (ticket == null) return null; // make return type Ticket? if your interface allows
+
+            if (ticket == null) return null;
 
             List<ApplicationUser> users = _userManager.Users.ToList();
 
@@ -61,7 +63,6 @@ namespace GardenGroup.Services
         {
             return _ticketRepository.GetAll();
         }
-
         public List<Ticket> GetMyTickets(string id)
         {
             List<Ticket> tickets = _ticketRepository.GetByCreator(id);
@@ -74,23 +75,23 @@ namespace GardenGroup.Services
             return tickets;
         }
 
-        public void GetMyClaimedAndClosedCounts(string solverId, out int claimed, out int closedByMe)
-        {
-            _ticketRepository.GetMyClaimedAndClosedCounts(solverId, out claimed, out closedByMe);
-        }
-
         public async Task<DashboardCountsViewModel> GetCountsForCurrentUserAsync(string id)
         {
             ApplicationUser? user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return new DashboardCountsViewModel();
-            }
-
-            DashboardCountsViewModel counts = _ticketRepository.GetDashboardCountsForUser(id);
+            
+            DashboardCountsViewModel counts = await _ticketRepository.GetDashboardUserAsync(id);
             return counts;
         }
-
+        // ------------------------------ BuildForCurrentUserAsync ---------------------------------------
+        // Auteur: Ernest Jureko
+        // Verantwoordelijkheid:
+        // BuildForCurrentUserAsync is veranderwoordelijk voor het samenstellen van een dashboardweergave voor de huidige Employee.   
+        // BuildForSolver is veranderwoordelijk voor het samenstellen van een dashboardweergave voor de huidige ServiceDesk.
+        // BuildForAdmin is veranderwoordelijk voor het samenstellen van een dashboardweergave voor de Admin.
+        // Ontwerpkeuzes:
+        // - ik heb gekozen om de dashboard data op te bouwen in de service laag zodat controller schoon blijft.
+        // - Alle data die de charts nodig hebben komt uit het counts object dat uit de repository komt. 
+        // -----------------------------------------------------------------------------
         public async Task<DashboardViewModel> BuildForCurrentUserAsync(string id)
         {
             DashboardCountsViewModel counts = await GetCountsForCurrentUserAsync(id);
@@ -103,59 +104,60 @@ namespace GardenGroup.Services
             viewModel.Unresolved.Value2 = counts.Total;
             viewModel.Unresolved.Color = "#f39c12";
 
-            viewModel.PastDeadline.Title = "Incidents past deadline";
+            viewModel.PastDeadline.Title = "Tickets past deadline";
             viewModel.PastDeadline.Subtitle = "These tickets are now pass DeadLine";
             viewModel.PastDeadline.Value1 = counts.PastDeadline;
-            viewModel.PastDeadline.Value2 = 0;
+            viewModel.PastDeadline.Value2 = counts.Total;
             viewModel.PastDeadline.Color = "#c0392b";
 
             return viewModel;
         }
 
-        public async Task<DashboardViewModel> BuildForSolver(string solverId)
+        public async Task<DashboardViewModel> BuildForSolverAsync(string solverId)
         {
-            _ticketRepository.GetMyClaimedAndClosedCounts(solverId, out int claimed, out int closedByMe);
+            DashboardCountsViewModel counts = await _ticketRepository.GetSolverDashboardAsync(solverId);
 
             DashboardViewModel viewModel = new DashboardViewModel();
 
             viewModel.ClaimedCount.Title = "Tickets claimed by You";
             viewModel.ClaimedCount.Subtitle = "Tickets you are currently working on";
-            viewModel.ClaimedCount.Value1 = claimed;
-            viewModel.ClaimedCount.Value2 = 0;
+            viewModel.ClaimedCount.Value1 = counts.ClaimedCount;
+            viewModel.ClaimedCount.Value2 = counts.Total;
             viewModel.ClaimedCount.Color = "#2980b9";
 
             viewModel.ClosedByMeCount.Title = "Tickets closed by You";
             viewModel.ClosedByMeCount.Subtitle = "Tickets you have successfully closed";
-            viewModel.ClosedByMeCount.Value1 = closedByMe;
-            viewModel.ClosedByMeCount.Value2 = 0; 
+            viewModel.ClosedByMeCount.Value1 = counts.ClosedByMeCount;
+            viewModel.ClosedByMeCount.Value2 = counts.Total; 
             viewModel.ClosedByMeCount.Color = "#27ae60";
 
             return viewModel;
         }
 
-        public async Task<DashboardViewModel> BuildForAdmin(string adminId)
+        public async Task<DashboardViewModel> BuildForAdminAsync()
         {
-            List<Ticket> allTicekts = _ticketRepository.GetAll();
-
-            int totalTickets = allTicekts.Count;
+            DashboardCountsViewModel counts = await _ticketRepository.GetAdminDashboardAsync();
 
             DashboardViewModel viewModel = new DashboardViewModel();
             
-            viewModel.TotaalTicketsOpen.Title = "Total Tickets";
-            viewModel.TotaalTicketsOpen.Subtitle = "All tickets that are currently open in the system";
-            viewModel.TotaalTicketsOpen.Value1 = totalTickets;
-            viewModel.TotaalTicketsOpen.Value2 = totalTickets;
+            viewModel.TotaalTicketsOpen.Title = "Total open Tickets";
+            viewModel.TotaalTicketsOpen.Subtitle = "All open ticket is systeem";
+            viewModel.TotaalTicketsOpen.Value1 = counts.TotaalTicketsOpen;
+            viewModel.TotaalTicketsOpen.Value2 = counts.Total;
             viewModel.TotaalTicketsOpen.Color = "#8e44ad";
+
+            viewModel.ClosedByMeCount.Title = "Ticket closed";
+            viewModel.ClosedByMeCount.Subtitle = "All tickets that are closed today";
+            viewModel.ClosedByMeCount.Value1 = counts.ClosedToday;
+            viewModel.ClosedByMeCount.Value2 = counts.Total;
+            viewModel.ClosedByMeCount.Color = "#8e44ad";
+
+            viewModel.PastDeadline.Title = "Tickets over Deadline";
+            viewModel.PastDeadline.Subtitle = "All tickets that are currently over deadline";
+            viewModel.PastDeadline.Value1 = counts.PastDeadline;
+            viewModel.PastDeadline.Value2 = counts.Total;
+            viewModel.PastDeadline.Color = "#8e44ad";
             return viewModel;
-        }
-
-        public async Task<bool> TransferTicketAsync(string id, string newSolverUserId)
-        {
-            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(newSolverUserId))
-                return false;
-
-            bool ok = _ticketRepository.TransferTicket(id, newSolverUserId);
-            return ok;
         }
     }
 }

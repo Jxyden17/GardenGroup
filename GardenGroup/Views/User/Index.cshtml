@@ -6,7 +6,6 @@
 }
 <h1>@ViewData["Title"]</h1>
 
-<partial name="_ConfirmMessage" />
 <partial name="_ErrorMessage" />
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -39,8 +38,12 @@
                     <td>@user.City</td>
                     <td>
                         <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@user.Id">Details</a> |
-                        <a class="btn btn-sm btn-warning" asp-action="Update" asp-route-id="@user.Id">Edit</a> |
-                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@user.Id">Delete</a>
+                        <a class="btn btn-sm btn-warning" asp-action="Update" asp-route-id="@user.Id">Edit</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                                <a>|</a>
+                            <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@user.Id">Delete</a>
+                        }
                     </td>
                 </tr>
                 nr++;

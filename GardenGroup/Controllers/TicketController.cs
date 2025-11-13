@@ -1,3 +1,4 @@
+using GardenGroup.Enums;
 using GardenGroup.Models;
 using GardenGroup.Models.viewModels;
 using GardenGroup.Repositories.Interfaces;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
+using System.Threading.Tasks;
 
 namespace GardenGroup.Controllers
 {
@@ -14,13 +16,15 @@ namespace GardenGroup.Controllers
     {
         private readonly ITicketService _ticketService;
         private readonly IArchiveService _archiveService;
+        private readonly ITransferService  _transferService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public TicketController(ITicketService ticketService, UserManager<ApplicationUser> userManager, IArchiveService archiveService)
+        public TicketController(ITicketService ticketService, UserManager<ApplicationUser> userManager, IArchiveService archiveService, ITransferService transferService)
         {
             _ticketService = ticketService;
             _userManager = userManager;
             _archiveService = archiveService;
+            _transferService = transferService;
 
         }
 
@@ -41,7 +45,7 @@ namespace GardenGroup.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin,ServiceDesk")]
+        [Authorize(Roles = "Admin,ServiceDesk,User")]
         // GET: TicketController/Details/5
         public ActionResult Details(string id)
         {
@@ -49,7 +53,7 @@ namespace GardenGroup.Controllers
             return View("Details", ticket);
         }
 
-        [Authorize(Roles = "Admin,ServiceDesk")]
+        [Authorize(Roles = "Admin,ServiceDesk,User")]
         // GET: TicketController/Create
         public ActionResult Create()
         {
@@ -60,7 +64,7 @@ namespace GardenGroup.Controllers
         // POST: TicketController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,ServiceDesk")]
+        [Authorize(Roles = "Admin,ServiceDesk,User")]
         public async Task<IActionResult> Create(Ticket ticket)
         {
             ApplicationUser? user = await _userManager.GetUserAsync(User);
@@ -153,30 +157,68 @@ namespace GardenGroup.Controllers
 
         }
 
-
+        // ------------------------------ Transfer ---------------------------------------
+        // Auteur: Ernest Jureko
+        // Verantwoordelijkheid: Deze methode maak zorg dat jij kan tickets doorgeven aan andere service desk gebruiker 
+        // Allen admin en servicedesk kunnen dat doen.
+        //
+        // Ontwerpkeuzes:
+        // - Ticket id(TicketId) en newSolverId(userId) zijn nodig om ticket te vinden en nieuwe gebruiker toe te wijzen.
+        // - Try catch word gebruik om fouten ophallen en weergeven aan user ook dat website ga niet crashen.
+        // - Ik gebruik bool om te checken of transfer gelukt is of niet en geef feedback aan user via TempData.
+        // -----------------------------------------------------------------------------
         [Authorize(Roles = "Admin,ServiceDesk")]
         [HttpGet]
-        public IActionResult Transfer(string id)
+        public async Task<IActionResult> Transfer(string id)
         {
-            Ticket ticket = _ticketService.GetTicketById(id);
-            var serviceDeskUsers =  _userManager.GetUsersInRoleAsync("ServiceDesk").Result;
-            ViewBag.Users = serviceDeskUsers;
-            return View(ticket);
+            try
+            {
+                Ticket ticket = _ticketService.GetTicketById(id);
+
+                ApplicationUser? currentUser = await _userManager.GetUserAsync(User);
+                IList<ApplicationUser> users = await _transferService.GetServiceDeskUsersAsync(currentUser.Id.ToString());
+
+                TransferTicketViewModel transfer = new TransferTicketViewModel 
+                {
+                    Ticket = ticket,
+                    ServiceDeskUsers = users
+                };
+                return View(transfer);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = "Kon ticket of gebruikers niet ophalen. Probeer later opnieuw.";
+                return View();
+            }
         }
 
         [Authorize(Roles = "Admin,ServiceDesk")]
         [HttpPost]
-        public async Task<IActionResult> Transfer(string id, string newSolverUserId)
+        public async Task<IActionResult> Transfer(string id, string newSolverId)
         {
             try
             {
-                List<Ticket> tickets = _ticketService.GetAllTickets();
-                _archiveService.Archive(tickets);
-                return View();
+                bool ok = await _transferService.TransferTicketAsync(id, newSolverId);
+                if (ok)
+                {
+                    TempData["SuccessMessage"] = "Ticket transferred.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Transfer failed (ticket not found or not modified).";
+                }
+
+                if (User.IsInRole("ServiceDesk"))
+                    return RedirectToAction("ServiceDesk", "Dashboard");
+
+                if (User.IsInRole("Admin"))
+                    return RedirectToAction("Admin", "Dashboard");
+
+                return RedirectToAction("Login", "User");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                ViewBag.ErrorMessage = "archiveren mislukt";
+                ViewBag.ErrorMessage = "Transfer failed (ticket not found or not modified).";
                 return View();
             }
             

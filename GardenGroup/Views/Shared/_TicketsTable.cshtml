@@ -26,14 +26,29 @@
                 <td>@(ticket.Datum_open?.ToString("dd-MM-yyyy"))</td>
                 <td>@(ticket.Deadline?.ToString("dd-MM-yyyy"))</td>
                 <td>
-                        <a class="btn btn-sm btn-info" asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id">Details</a> |
-                        <a class="btn btn-sm btn-warning" asp-controller="Ticket" asp-action="Update" asp-route-id="@ticket.Id">Edit</a> |
-                        <a class="btn btn-sm btn-danger" asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id">Delete</a>|
-                        @if(User.IsInRole("ServiceDesk") || User.IsInRole("Admin"))
+                        @if(User.IsInRole("Admin"))
                         {
-                            <a class="btn btn-sm btn-info" asp-controller="Ticket" asp-action="Transfer" asp-route-id="@ticket.Id">Transfer</a>
+                            <a class="btn btn-sm btn-info" asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id">Details</a>
+                            <a>|</a>
+                            <a class= "btn btn-sm btn-warning" asp-controller = "Ticket" asp-action = "Update" asp-route-id = "@ticket.Id">Edit</a>
+                            <a>|</a>
+                            <a class="btn btn-sm btn-danger" asp-controller="Ticket" asp-action="Delete" asp-route-id="@ticket.Id">Delete</a>
+                            <a>|</a>
+                            <a class="btn btn-sm btn-success" asp-controller="Ticket" asp-action="Transfer" asp-route-id="@ticket.Id">Transfer</a>
                         }
-                </td>
+                        else if (User.IsInRole("ServiceDesk"))
+                        {
+                            <a class="btn btn-sm btn-info" asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id">Details</a>
+                            <a>|</a>
+                            <a class="btn btn-sm btn-warning" asp-controller="Ticket" asp-action="Update" asp-route-id="@ticket.Id">Edit</a>
+                            <a>|</a>
+                            <a class="btn btn-sm btn-success" asp-controller="Ticket" asp-action="Transfer" asp-route-id="@ticket.Id">Transfer</a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-sm btn-info" asp-controller="Ticket" asp-action="Details" asp-route-id="@ticket.Id">Details</a>
+                        }
+                    </td>
             </tr>
             nr++;
         }

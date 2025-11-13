@@ -7,7 +7,17 @@
 
 @if (TempData["ConfirmMessage"] != null)
 {
-    <div class="alert alert-success" role="alert">
+    <div class="alert alert-success text-center" role="alert">
         @Html.Raw(TempData["ConfirmMessage"])
     </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success text-center" role="alert" style="margin-top: 10px;">
+        <strong>Success:</strong> @TempData["SuccessMessage"]
+    </div>
+}
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
 }

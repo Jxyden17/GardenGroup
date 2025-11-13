@@ -1,4 +1,5 @@
-﻿using GardenGroup.Models;
+﻿using GardenGroup.Enums;
+using GardenGroup.Models;
 using GardenGroup.Models.viewModels;
 using GardenGroup.Repositories.Interfaces;
 using GardenGroup.Services.interfaces;
@@ -72,8 +73,21 @@ namespace GardenGroup.Controllers
 
                 var result = await _signInManager.PasswordSignInAsync(user, loginModel.Password, true, false);
                 if (result.Succeeded)
-                    return RedirectToAction("Employee", "Dashboard");
-
+                {
+                    IList<string> roles = await _userManager.GetRolesAsync(user);
+                    if (roles.Contains(UserRoles.User.ToString()))
+                    {
+                        return RedirectToAction("Employee", "Dashboard");
+                    }
+                    else if (roles.Contains(UserRoles.ServiceDesk.ToString()))
+                    {
+                        return RedirectToAction("ServiceDesk", "Dashboard");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Admin", "Dashboard");
+                    }
+                }
                 ViewBag.ErrorMessage = result.IsLockedOut
                     ? "Account locked. Try again later."
                     : "Invalid email or password.";

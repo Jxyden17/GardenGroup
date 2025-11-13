@@ -1,26 +1,31 @@
-﻿@model GardenGroup.Models.viewModels.DashboardDataViewModel
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success text-center" role="alert" style="margin-top: 10px;">
-        <strong>Success:</strong> @TempData["SuccessMessage"]
-    </div>
-}
+﻿@*
+// ------------------------------ Dashboard van Admin  ---------------------------------------
+// Auteur: Ernest Jureko
+// Verantwoordelijkheid:
+// Toont het dashboard voor Admin rol
+// Ontwerpkeuzes:
+// - ik heb gekozen om Partial Views (_StatusDonut) voor de statistieken om code te kunnen gebruiken in andere dashboarden
+// en (_TicketsTabel) om de tabel met tickets weer te geven.
+// - Deze dashboard laat zien chart met Totaal open tickets , tickets die de deadline zijn gepasseerd en tickets gesloten vandaag zijn
+// Admin kan ook zien alle ticket die nog niet gesloten zijn om tie te transferen naar een service desk gebruiker.
+// -----------------------------------------------------------------------------
+*@ 
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger text-center" role="alert" style="margin-top: 10px;">
-        <strong>Error:</strong> @TempData["ErrorMessage"]
-    </div>
-}
+
+@model GardenGroup.Models.viewModels.DashboardDataViewModel
+
+<partial name="_ErrorMessage"/>
 @{
     ViewData["Title"] = "Dashboard"
     ;
 }
 
-<h1 class="mb-4 text-center">@ViewData["Title"] van @Model.DisplayName</h1>
+<h1 class="mb-4 text-center">@ViewData["Title"] of @Model.DisplayName</h1>
 
 <div class="d-flex flex-wrap gap-3 justify-content-center align-items-center">
     @await Html.PartialAsync("_StatusDonut", @Model.Stats.TotaalTicketsOpen)
+    @await Html.PartialAsync("_StatusDonut", @Model.Stats.PastDeadline)
+    @await Html.PartialAsync("_StatusDonut", @Model.Stats.ClosedByMeCount)
 </div>
 
 <div class="mt-4">

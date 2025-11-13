@@ -1,4 +1,13 @@
-﻿namespace GardenGroup.Models.viewModels
+﻿// ------------------------------ DashboardViewModel ---------------------------------------
+// Auteur: Ernest Jureko
+// Verantwoordelijkheid: DashboardViewModel maakt alle charts voor dashboarden
+//
+// Ontwerpkeuzes:
+// - Ik heb hier alle nodige charts toegevoegd die we op alle dashboarden willen weergeven.
+// - Deze klasse maakt gebruik van ChartViewModel om de structuur van elke grafiek te definiëren.
+// - Deze kunnen we later makelijk uitbreiden als we meer grafieken willen toevoegen.  
+// -----------------------------------------------------------------------------
+namespace GardenGroup.Models.viewModels
 {
     public class DashboardViewModel
     {

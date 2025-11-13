@@ -37,10 +37,18 @@
     <div class="mb-3">
         <label class="form-label d-block">Role</label>
         <div class="btn-group" role="group" aria-label="Role">
+            @if(User.IsInRole("Admin"))
+            {
             @foreach (var role in ViewBag.AllRoles as List<string>)
             {
                 <input type="radio" class="btn-check" name="Role" id="role_@role" value="@role" autocomplete="off" @(Model.Role == role ? "checked" : "")>
                 <label class="btn btn-outline-primary" for="role_@role">@role</label>
+                }
+            }
+            else
+            {
+                <input type="radio" class="btn-check" name="Role" id="btnRoleUser" value="User" autocomplete="off" @(Model?.Role == "User" ? "checked" : "")>
+                <label class="btn btn-outline-primary" for="btnRoleUser">User</label>
             }
         </div>
     </div>

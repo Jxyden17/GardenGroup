@@ -1,5 +1,6 @@
 ﻿using GardenGroup.Models;
 using GardenGroup.Models.viewModels;
+using System.Threading.Tasks;
 
 namespace GardenGroup.Repositories.Interfaces
 {
@@ -12,9 +13,8 @@ namespace GardenGroup.Repositories.Interfaces
         void Delete(string id);
         List<Ticket> GetByCreator(string creatorId);
         List<Ticket> GetBySolver(string solverId);
-        DashboardCountsViewModel GetDashboardCountsForUser(string id);
-        bool TransferTicket(string ticketid, string newSolverUserId);
-        void GetMyClaimedAndClosedCounts(string solverId, out int claimed, out int closedByMe);
-
+        Task<DashboardCountsViewModel> GetDashboardUserAsync(string creatorId);
+        Task<DashboardCountsViewModel> GetSolverDashboardAsync(string solverId);
+        Task<DashboardCountsViewModel> GetAdminDashboardAsync();
     }
 }

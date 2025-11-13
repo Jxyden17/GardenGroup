@@ -86,7 +86,10 @@ namespace GardenGroup
 
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
             builder.Services.AddScoped<ITicketService, TicketService>();
-          
+
+            builder.Services.AddScoped<ITransferRepository, TransferRepository>();
+            builder.Services.AddScoped<ITransferService, TransferService>();
+
             builder.Services.AddScoped<IArchiveService, ArchiveService>();
             builder.Services.AddScoped<IArchiveRepository, ArchiveRepository>();
 

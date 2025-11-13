@@ -14,10 +14,8 @@ namespace GardenGroup.Services.interfaces
         List<Ticket> GetAllTickets();
         List<Ticket> GetMyTickets(string id);
         List<Ticket> GetMySolvedTickets(string id);
-        Task<DashboardViewModel> BuildForCurrentUserAsync( string id);
-        Task<bool> TransferTicketAsync(string id, string newSolverUserId);
-        void GetMyClaimedAndClosedCounts(string solverId, out int claimed, out int closedByMe);
-        Task<DashboardViewModel> BuildForSolver(string solverId);
-        Task<DashboardViewModel> BuildForAdmin(string adminId);
+        Task<DashboardViewModel> BuildForCurrentUserAsync(string id);
+        Task<DashboardViewModel> BuildForSolverAsync(string solverId);
+        Task<DashboardViewModel> BuildForAdminAsync();
     }
 }

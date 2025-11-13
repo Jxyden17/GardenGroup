@@ -28,14 +28,18 @@
     <div class="mb-3">
         <label class="form-label d-block">Role</label>
         <div class="btn-group" role="group" aria-label="Role">
-            <input type="radio" class="btn-check" name="Role" id="btnRoleAdmin" value="Admin" autocomplete="off" @(Model?.Role == "Admin" ? "checked" : "")>
-            <label class="btn btn-outline-primary" for="btnRoleAdmin">Admin</label>
+            @if (User.IsInRole("Admin"))
+            {
+                <input type="radio" class="btn-check" name="Role" id="btnRoleAdmin" value="Admin" autocomplete="off" @(Model?.Role == "Admin" ? "checked" : "")>
+                <label class="btn btn-outline-primary" for="btnRoleAdmin">Admin</label>
 
+                <input type="radio" class="btn-check" name="Role" id="btnRoleServiceDesk" value="ServiceDesk" autocomplete="off" @(Model?.Role == "ServiceDesk" ? "checked" : "")>
+                <label class="btn btn-outline-primary" for="btnRoleServiceDesk">Service Desk</label>
+            }
             <input type="radio" class="btn-check" name="Role" id="btnRoleUser" value="User" autocomplete="off" @(Model?.Role == "User" ? "checked" : "")>
             <label class="btn btn-outline-primary" for="btnRoleUser">User</label>
 
-            <input type="radio" class="btn-check" name="Role" id="btnRoleServiceDesk" value="ServiceDesk" autocomplete="off" @(Model?.Role == "ServiceDesk" ? "checked" : "")>
-            <label class="btn btn-outline-primary" for="btnRoleServiceDesk">Service Desk</label>
+
         </div>
     </div>
 

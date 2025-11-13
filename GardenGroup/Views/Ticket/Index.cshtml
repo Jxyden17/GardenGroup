@@ -4,7 +4,6 @@
 {
     <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
 }
-
 <h1>Tickets</h1>
 
 <table class="table table-striped table-bordered align-middle">
@@ -17,7 +16,7 @@
             <th scope="col">Prioriteit</th>
             <th scope="col">Datum open</th>
             <th scope="col">Deadline</th>
-            <th scope="col"></th>
+            <th scope="col">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -33,9 +32,9 @@
                     <td>@tickets.Datum_open</td>
                     <td>@tickets.Deadline</td>
                     <td>
-                        <a asp-action="Details" asp-route-id="@tickets.Id">Details</a> |
-                        <a href="/Ticket/Update/@tickets.Id">Edit</a> |
-                        <a asp-action="Delete" asp-route-id="@tickets.Id">Delete</a>
+                        <a class="btn btn-sm btn-info" asp-action="Details" asp-route-id="@tickets.Id">Details</a> |
+                        <a class=" btn btn-sm btn-warning" href="/Ticket/Update/@tickets.Id">Edit</a> |
+                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@tickets.Id">Delete</a>
                     </td>
                 </tr>
                 nr++;

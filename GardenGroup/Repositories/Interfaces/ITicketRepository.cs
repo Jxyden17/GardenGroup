@@ -1,4 +1,5 @@
 ﻿using GardenGroup.Models;
+using GardenGroup.Models.viewModels;
 
 namespace GardenGroup.Repositories.Interfaces
 {
@@ -9,5 +10,11 @@ namespace GardenGroup.Repositories.Interfaces
         Ticket GetTicketById(string id);
         void UpdateTicket(Ticket ticket);
         void Delete(string id);
+        List<Ticket> GetByCreator(string creatorId);
+        List<Ticket> GetBySolver(string solverId);
+        DashboardCountsViewModel GetDashboardCountsForUser(string id);
+        bool TransferTicket(string ticketid, string newSolverUserId);
+        void GetMyClaimedAndClosedCounts(string solverId, out int claimed, out int closedByMe);
+
     }
 }

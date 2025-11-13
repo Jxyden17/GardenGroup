@@ -1,4 +1,5 @@
 ﻿@model Ticket
+@using GardenGroup.Enums
 
 @{
     ViewData["Title"] = "Edit Ticket";
@@ -18,50 +19,50 @@
 
     <div class="mb-3">
         <label class="form-label d-block fw-bold mb-2">Type</label>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="Type" id="typeFeature" value="Feature" @(Model?.Type == "Feature" ? "checked" : "") />
-            <label class="form-check-label" for="typeFeature">Feature</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="Type" id="typeBug" value="Bug" @(Model?.Type == "Bug" ? "checked" : "") />
-            <label class="form-check-label" for="typeBug">Bug</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="Type" id="typeTask" value="Task" @(Model?.Type == "Task" ? "checked" : "") />
-            <label class="form-check-label" for="typeTask">Task</label>
-        </div>
+       @foreach(TicketTypes types in Enum.GetValues(typeof(TicketTypes)))
+        {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input"
+                type="radio"
+                name="Type"
+                id="Type(@types)"
+                value="@types"
+                @(Model != null && Model.Type == types ? "checked" : "") />
+                <label class="form-check-label" for="type(@types)">@types</label>
+            </div>
+        }
     </div>
 
     <div class="mb-3">
         <label class="form-label d-block fw-bold mb-2">Priority</label>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="Prioriteit" id="priorityNormaal" value="Normaal" @(Model?.Prioriteit == "Normaal" ? "checked" : "") />
-            <label class="form-check-label" for="priorityNormaal">Normaal</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="Prioriteit" id="priorityHoog" value="Hoog" @(Model?.Prioriteit == "Hoog" ? "checked" : "") />
-            <label class="form-check-label" for="priorityHoog">Hoog</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="Prioriteit" id="priorityLaag" value="Laag" @(Model?.Prioriteit == "Laag" ? "checked" : "") />
-            <label class="form-check-label" for="priorityLaag">Laag</label>
-        </div>
+        @foreach (TicketPrioriteiten level in Enum.GetValues(typeof(TicketPrioriteiten)))
+        {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" 
+                type="radio" 
+                name="Priority" 
+                id="priority(@level)" 
+                value="@level" 
+                @(Model != null && Model.Prioriteit == level ? "checked" : "") />
+                <label class="form-check-label" for="priority(@level)">@level</label>
+            </div>
+        }
     </div>
 
     <div class="mb-3">
         <label class="form-label d-block fw-bold mb-2">Status</label>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="Status" id="statusOpen" value="Open" @(Model?.Status == "Open" ? "checked" : "") />
-            <label class="form-check-label" for="statusOpen">Open</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="Status" id="statusClosed" value="Closed" @(Model?.Status == "Closed" ? "checked" : "") />
-            <label class="form-check-label" for="statusClosed">Closed</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="Status" id="statusInProgress" value="In Progress" @(Model?.Status == "In Progress" ? "checked" : "") />
-            <label class="form-check-label" for="statusInProgress">In Progress</label>
-        </div>
+       @foreach(TicketStatuses statuses in Enum.GetValues(typeof(TicketStatuses)))
+        {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input"
+                       type="radio"
+                       name="status"
+                       id="status(@statuses)"
+                       value="@statuses"
+                       @(Model != null && Model.Status == statuses ? "checked" : "") />
+                <label class="form-check-label" for="status(@statuses)">@statuses</label>
+            </div>
+        }
     </div>
 
     <div class="mb-3">
@@ -84,16 +85,6 @@
         <input type="datetime-local" id="deadline" name="Deadline" class="form-control" value="@(Model?.Deadline?.ToString("yyyy-MM-ddTHH:mm") ?? "")" />
     </div>
 
-    <div class="mb-3">
-        <label for="creator" class="form-label">Creator ID</label>
-        <input type="number" id="creator" name="Creator" class="form-control" value="@Model?.Creator" />
-    </div>
-
-    <div class="mb-3">
-        <label for="solver" class="form-label">Solver ID</label>
-        <input type="number" id="solver" name="Solver" class="form-control" value="@Model?.Solver" />
-    </div>
-
     <button type="submit" class="btn btn-primary">Save Changes</button>
-    <a href="/Ticket/Index" class="btn btn-secondary ms-2">Back to List</a>
+    <button type="button" class="btn btn-secondary" onclick="history.back()">Back</button>
 </form>

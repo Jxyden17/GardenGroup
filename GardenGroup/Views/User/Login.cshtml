@@ -1,0 +1,28 @@
+﻿@model GardenGroup.Models.viewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h1 class="mb-4 text-center">@ViewData["Title"]</h1>
+
+<partial name="_ErrorMessage" />
+
+<form asp-controller="User" asp-action="Login" method="post" class="mt-4 mx-auto" style="max-width: 400px;">
+
+    <div class="mb-3">
+        <label for="Email" class="form-label">E-Mail</label>
+        <input type="text" id="Email" name="email" class="form-control" placeholder="Enter your email" required value="@Model?.email" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Password" class="form-label">Password</label>
+        <input type="password" id="Password" name="Password" class="form-control" placeholder="Enter your password" required />
+    </div>
+
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary">Login</button>
+        <a asp-action="ForgotPassword" asp-controller="User" class="btn btn-link text-decoration-none">
+            Forgot your password?
+        </a>
+    </div>
+</form>

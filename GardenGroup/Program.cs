@@ -86,6 +86,9 @@ namespace GardenGroup
 
             builder.Services.AddScoped<ITicketRepository, TicketRepository>();
             builder.Services.AddScoped<ITicketService, TicketService>();
+          
+            builder.Services.AddScoped<IArchiveService, ArchiveService>();
+            builder.Services.AddScoped<IArchiveRepository, ArchiveRepository>();
 
             builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
             builder.Services.AddSingleton(resolver => resolver.GetRequiredService<Microsoft.Extensions.Options.IOptions<SmtpOptions>>().Value);

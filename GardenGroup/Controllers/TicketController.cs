@@ -1,4 +1,4 @@
-﻿using GardenGroup.Models;
+using GardenGroup.Models;
 using GardenGroup.Models.viewModels;
 using GardenGroup.Repositories.Interfaces;
 using GardenGroup.Services.interfaces;
@@ -12,12 +12,15 @@ namespace GardenGroup.Controllers
     public class TicketController : Controller
     {
         private readonly ITicketService _ticketService;
+        private readonly IArchiveService _archiveService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public TicketController(ITicketService ticketService, UserManager<ApplicationUser> userManager)
+        public TicketController(ITicketService ticketService, UserManager<ApplicationUser> userManager, IArchiveService archiveService)
         {
             _ticketService = ticketService;
             _userManager = userManager;
+            _archiveService = archiveService;
+
         }
         // GET: TicketController
         public ActionResult Index()
@@ -122,38 +125,20 @@ namespace GardenGroup.Controllers
                 return View();
             }
         }
-
-        [HttpGet]
-        public IActionResult Transfer(string id)
-        {
-            Ticket ticket = _ticketService.GetTicketById(id);
-            var serviceDeskUsers =  _userManager.GetUsersInRoleAsync("ServiceDesk").Result;
-            ViewBag.Users = serviceDeskUsers;
-            return View(ticket);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Transfer(string id, string newSolverUserId)
+        public ActionResult Archive()
         {
             try
             {
-                bool ok = await _ticketService.TransferTicketAsync(id, newSolverUserId);
-                if (ok)
-                {
-                    TempData["SuccessMessage"] = "Ticket transferred.";
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Transfer failed (ticket not found or not modified).";
-                }
-
-                return RedirectToAction("ServiceDesk", "Dashboard");
+                List<Ticket> tickets = _ticketService.GetAllTickets();
+                _archiveService.Archive(tickets);
+                return View();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["ErrorMessage"] = "Unexpected error during transfer: " + ex.Message;
-                return RedirectToAction("Details", new { id });
+                ViewBag.ErrorMessage = "archiveren mislukt";
+                return View();
             }
+            
         }
     }
 }
